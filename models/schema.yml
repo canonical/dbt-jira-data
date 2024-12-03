@@ -1,0 +1,22 @@
+version: 2
+
+models:
+  - name: opportunity_contract
+    description: lists the contracts with linked opportunities
+    columns:
+    - name: id
+      description: salesforce id
+    - name: accountid
+      description: associated account id
+
+sources:
+  - name: marketborg
+    database: marketborg
+    schema: public
+    tables:
+    - name: salesforce_opportunity
+  - name: salesborg
+    database: salesborg
+    schema: public
+    tables:
+    - name: salesforce_contract
