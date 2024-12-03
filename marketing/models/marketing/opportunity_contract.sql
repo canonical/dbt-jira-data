@@ -3,13 +3,13 @@
 with opportunity as (
 
     select *
-    from {{ source('marketborg', 'salesforce_opportunity') }}
+    from {{ source('marketing', 'salesforce_opportunity') }}
 
 ),
 
 contract as (
     select *
-    from {{ source('salesborg', 'salesforce_contract') }}
+    from {{ source('sales', 'salesforce_contract') }}
 )
 
 select so.id, sc.accountid

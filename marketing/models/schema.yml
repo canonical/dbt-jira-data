@@ -10,13 +10,13 @@ models:
       description: associated account id
 
 sources:
-  - name: marketborg
-    database: marketborg
+  - name: marketing
+    database: marketing
     schema: public
     tables:
     - name: salesforce_opportunity
-  - name: salesborg
-    database: salesborg
+  - name: sales
+    database: sales
     schema: public
     tables:
     - name: salesforce_contract
