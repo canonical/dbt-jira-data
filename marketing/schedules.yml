@@ -1,4 +1,4 @@
 schedules:
   - name: dbt_trino_stg__marketing__daily
     model: opportunity_contract
-    interval: daily
+    interval: hourly
