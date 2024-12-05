@@ -1,6 +1,6 @@
 schedules:
   - name: dbt_trino_stg__marketing__daily
-    model: opportunity_contract
+    model: +opportunity_contract
     interval: hourly
     env:
       - staging
