@@ -17,3 +17,4 @@ from opportunity so
 left join contract sc
     on sc.id = so.contractid
 where sc.accountid is not null
+limit 10
