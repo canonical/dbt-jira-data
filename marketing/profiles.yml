@@ -1,0 +1,12 @@
+dbt_trino_stg_ldap:
+    target: dev
+    outputs:
+        dev:
+            type: trino
+            method: ldap
+            user: "{{ env_var('DBT_MARKETING_TRINO_USER') }}"
+            password: "{{ env_var('DBT_ENV_SECRET_MARKETING_TRINO_PASSWORD') }}"
+            host: trino.ps6.staging.canonical.com
+            catalog: marketing_developer
+            schema: public
+            port: 443
