@@ -1,4 +1,4 @@
-dbt_trino_stg_ldap:
+marketing:
     target: dev
     outputs:
         dev:
