@@ -15,8 +15,14 @@ sources:
     schema: public
     tables:
     - name: salesforce_opportunity
+    loaded_at_field: createddate
+    freshness:
+      warn_after: {count: 12, period: hour}
   - name: sales
     database: sales
     schema: public
     tables:
     - name: salesforce_contract
+    loaded_at_field: createddate
+    freshness:
+      warn_after: {count: 12, period: hour}
