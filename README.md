@@ -12,7 +12,7 @@ It is recommended to install dbt using a virtual environment and pip.
 ```sh
 python3 -m venv .venv
 source .venv/bin/activate
-python -m pip install dbt-core dbt-trino
+pip install dbt-core dbt-trino
 ```
 
 Also install the dotenv package for loading environment variables:
@@ -93,7 +93,7 @@ Available dbt commands:
 First, install the DataHub CLI with the dbt extra. Note that the package version must match the deployed version of DataHub. The version can be found via the user menu of the web interface.
 
 ```sh
-python3 -m pip install -v "acryl-datahub[dbt]==0.13.2"
+pip install -v "acryl-datahub[dbt]==0.13.2"
 ```
 
 Then, prepare the recipe file and environment variables:
@@ -154,5 +154,5 @@ More details on what is possible when running dbt Core can be found in the [docu
 
 
 ### Internal documentation
-[dbt notes](https://docs.google.com/document/d/1MbDLyN6i-QEWughcZZCvRz5MZFrGgXdO6F1yNaFmpBM/edit?tab=t.0)
-[Specification](https://docs.google.com/document/d/1FmXF8PUOJjafB-DIw-dzBVFdUnObXFHJjqi5kHDidjM/edit?tab=t.0)
+* [Exploratory notes on dbt](https://docs.google.com/document/d/1MbDLyN6i-QEWughcZZCvRz5MZFrGgXdO6F1yNaFmpBM/edit?tab=t.0)
+* [Specification](https://docs.google.com/document/d/1FmXF8PUOJjafB-DIw-dzBVFdUnObXFHJjqi5kHDidjM/edit?tab=t.0)

@@ -4,9 +4,9 @@ template:
         dev:
             type: trino
             method: ldap
-            user: "{{ env_var('DBT_TEMPLATE_TRINO_USER') }}"
+            user: "{{ env_var('DBT_ENV_TEMPLATE_TRINO_USER') }}"
             password: "{{ env_var('DBT_ENV_SECRET_TEMPLATE_TRINO_PASSWORD') }}"
-            host: trino.ps6.staging.canonical.com
-            catalog: template_developer
-            schema: public
+            host: "{{ env_var('DBT_ENV_TEMPLATE_TRINO_HOST') }}"
+            catalog: "{{ env_var('DBT_ENV_TEMPLATE_CATALOG') }}"
+            schema: "{{ env_var('DBT_ENV_TEMPLATE_SCHEMA') }}"
             port: 443
