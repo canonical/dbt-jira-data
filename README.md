@@ -37,7 +37,7 @@ Authentication with Trino can be done using LDAP (username+password). Acquire a 
 
 The value of `your_team_name` in the `profiles.yml` file should match the profile property of `dbt_project.yml`. Replace the instances of `<TEAM>` below with the appropriate value.
 
-`profiles.yml`:
+#### `profiles.yml`
 ```yaml
 your_team_name:
     target: dev
@@ -53,7 +53,7 @@ your_team_name:
             port: 443
 ```
 
-`.env`:
+#### `.env`
 ```
 # The username and password for the Trino instance.
 # Variables starting with `DBT_ENV_SECRET` are omitted from logs.
@@ -88,7 +88,7 @@ python3 -m pip install -v "acryl-datahub[dbt]==0.13.2"
 
 Then, prepare the recipe file and environment variables:
 
-`recipe.yml`:
+#### `recipe.yml`
 ```yaml
 source:
   type: dbt
@@ -106,7 +106,7 @@ sink:
     token: ${DATAHUB_TOKEN}
 ```
 
-`.env`:
+#### `.env`
 ```
 DBT_PROJECT_ROOT=<path to dbt project>
 DATAHUB_URL=<datahub GMS URL> # e.g. https://gms.datahub.ps6.stg.canonical.com
