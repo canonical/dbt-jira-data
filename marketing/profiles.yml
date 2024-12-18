@@ -6,7 +6,7 @@ marketing:
             method: ldap
             user: "{{ env_var('DBT_MARKETING_TRINO_USER') }}"
             password: "{{ env_var('DBT_ENV_SECRET_MARKETING_TRINO_PASSWORD') }}"
-            host: trino.ps6.staging.canonical.com
-            catalog: marketing_developer
-            schema: public
+            host: "{{ env_var('DBT_MARKETING_TRINO_HOST') }}"
+            catalog: "{{ env_var('DBT_MARKETING_CATALOG') }}"
+            schema: "{{ env_var('DBT_MARKETING_SCHEMA') }}"
             port: 443
