@@ -1,0 +1,7 @@
+models:
+  - name: netflix_countries
+    description: One row per movie per country on Netflix
+  - name: amazon_countries
+    description: One row per movie per country on Amazon Prime Video
+  - name: hbo_countries
+    description: One row per movie per country on HBO Max

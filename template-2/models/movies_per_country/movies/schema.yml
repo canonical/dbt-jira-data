@@ -1,0 +1,9 @@
+models:
+  - name: apple_movies
+    description: One row per movie per country on Apple TV, contains the intermediary `apple_countries` model.
+  - name: amazon_movies
+    description: One row per movie per country on Amazon Prime Video.
+  - name: netflix_movies
+    description: One row per movie per country on Netflix.
+  - name: hbo_movies
+    description: One row per movie per country on HBO Max.

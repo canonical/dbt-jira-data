@@ -1,0 +1,11 @@
+schedules:
+  - name: dbt_trino_stg__countries__daily
+    model: countries
+    interval: daily
+    env:
+      - staging
+  - name: dbt_trino_prod__movies_per_country__weekly
+    model: +movies_per_country
+    interval: weekly
+    env:
+      - production
