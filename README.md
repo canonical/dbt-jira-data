@@ -14,13 +14,14 @@ python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install dbt-core dbt-trino
 ```
-References:
-* [Install with pip | dbt Developer Hub](https://docs.getdbt.com/docs/core/pip-install)
 
 Also install the dotenv package for loading environment variables:
 ```sh
 pip install python-dotenv
 ```
+
+#### References
+* [Install with pip | dbt Developer Hub](https://docs.getdbt.com/docs/core/pip-install)
 
 ### Preparing a dbt project
 
@@ -66,7 +67,7 @@ DBT_ENV_<TEAM>_CATALOG=<catalog> # e.g. marketing_developer.
 DBT_ENV_<TEAM>_SCHEMA=<schema> # e.g. public
 ```
 
-References:
+#### References
 * [Starburst/Trino setup | dbt Developer Hub](https://docs.getdbt.com/docs/core/connect-data-platform/trino-setup)
 * [Environment variables | dbt Developer Hub](https://docs.getdbt.com/docs/build/environment-variables)
 
@@ -85,7 +86,7 @@ Available dbt commands:
 * `dbt build`: test + run
 * `dbt seed`: build seeds according to configuration
 
-References:
+#### References
 * [Run your dbt projects | dbt Developer Hub](https://docs.getdbt.com/docs/running-a-dbt-project/run-your-dbt-projects)
 
 ### Optional: DataHub ingestion
@@ -127,7 +128,7 @@ Finally, run the data ingestion:
 dotenv -f .env datahub ingest -c recipe.yml
 ```
 
-References:
+#### References
 * [dbt | DataHub](https://datahubproject.io/docs/generated/ingestion/sources/dbt/)
 * [CLI Ingestion | DataHub](https://datahubproject.io/docs/metadata-ingestion/cli-ingestion)
 
