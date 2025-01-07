@@ -18,6 +18,18 @@ sources:
     loaded_at_field: createddate
     freshness:
       warn_after: {count: 12, period: hour}
+    - name: salesforce_leadhistory
+    loaded_at_field: createddate
+    freshness:
+      warn_after: {count: 12, period: hour}
+    - name: salesforce_lead
+    loaded_at_field: createddate
+    freshness:
+      warn_after: {count: 12, period: hour}
+    - name: salesforce_contact
+    loaded_at_field: createddate
+    freshness:
+      warn_after: {count: 12, period: hour}
   - name: sales
     database: sales
     schema: public
