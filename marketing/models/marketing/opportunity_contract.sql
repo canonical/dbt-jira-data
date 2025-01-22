@@ -12,7 +12,7 @@ contract as (
     from {{ source('sales', 'salesforce_contract') }}
 )
 
-select so.id, sc.accountid
+select so.id, sc.accountid, so.amount
 from opportunity so
 left join contract sc
     on sc.id = so.contractid
