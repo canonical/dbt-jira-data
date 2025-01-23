@@ -14,7 +14,7 @@ contract as (
 
 select so.amount, so.stagename, sc.contractterm
 from contract sc
-left join opportunity sc
+left join opportunity so
     on sc.id = so.contractid
 where sc.accountid is not null
 limit 10
