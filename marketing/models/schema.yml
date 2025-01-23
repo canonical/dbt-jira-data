@@ -8,6 +8,15 @@ models:
       description: salesforce id
     - name: accountid
       description: associated account id
+  - name: contract_opportunity
+    description: lists the opportunities with linked contracts
+    columns:
+    - name: amount
+      description: opportunity amount
+    - name: stagename
+      description: opportunity stage name 
+    - name: contractterm
+      description: contract term
 
 sources:
   - name: marketing

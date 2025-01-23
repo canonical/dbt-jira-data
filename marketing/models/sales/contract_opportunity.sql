@@ -12,9 +12,9 @@ contract as (
     from {{ source('sales', 'salesforce_contract') }}
 )
 
-select so.id, sc.accountid
-from opportunity so
-left join contract sc
+select so.amount, so.stagename, sc.contractterm
+from contract sc
+left join opportunity sc
     on sc.id = so.contractid
 where sc.accountid is not null
 limit 10
