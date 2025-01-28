@@ -10,3 +10,13 @@ marketing:
             catalog: "{{ env_var('DBT_ENV_MARKETING_CATALOG') }}"
             schema: "{{ env_var('DBT_ENV_MARKETING_SCHEMA') }}"
             port: 443
+marketing-dev:
+    target: oauth
+    outputs:
+        oauth:
+            type: trino
+            method: oauth
+            host: "{{ env_var('DBT_ENV_MARKETING_TRINO_HOST') }}"
+            catalog: "{{ env_var('DBT_ENV_MARKETING_CATALOG') }}"
+            schema: "{{ env_var('DBT_ENV_MARKETING_SCHEMA') }}"
+            port: 443

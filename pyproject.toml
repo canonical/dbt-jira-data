@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "canonical-dbt-models"
+version = "0.1.0"
+description = "Models to be used with the dbt workflow"
+authors = ["Your Name <you@example.com>"]
+license = "AGPL-3.0-only"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+dbt-core = "^1.8.9"
+dbt-trino = "^1.8.4"
+python-dotenv = "^1.0.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
