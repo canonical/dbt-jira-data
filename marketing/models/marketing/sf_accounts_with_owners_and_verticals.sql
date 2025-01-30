@@ -2,7 +2,6 @@
 
 select
     sa.id,
-    -- will delete when select * works
     planhat_sync__c,
     isdeleted,
     billinglatitude,
