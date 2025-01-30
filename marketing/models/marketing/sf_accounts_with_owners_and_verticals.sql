@@ -123,7 +123,7 @@ select
     accountnumber,
     website,
     photourl,
-    industry,
+    sa.industry,
     salesloft1__salesloft_domain__c,
     csm_segment_override__c,
     ownership,
@@ -178,9 +178,12 @@ select
     jigsaw,
     jigsawcompanyid,
     sur.name as enr_account_owner_role,
-    {{ account_owner_role_bucket('sur.name') }} as enr_account_owner_role_buckets,
-    {{ account_industry_bucket('sa.industry') }} as enr_account_vertical
+    rm.name_bucket as enr_account_owner_role_buckets,
+    im.industry_bucket as enr_account_vertical
 from
-    salesforce_account AS sa
-    left join salesforce_user AS su on sa.ownerid = su.id
-    left join salesforce_userrole AS sur ON su.userroleid = sur.id
+    {{ source('marketing', 'salesforce_account') }} AS sa
+    left join {{ source('marketing', 'salesforce_user') }} AS su on sa.ownerid = su.id
+    left join {{ source('marketing', 'salesforce_userrole') }} AS sur on su.userroleid = sur.id
+    left join {{ ref('sf_accounts_owner_role_mapping') }} AS rm ON rm.name = sur.name
+    left join {{ ref('sf_accounts_industry_mapping') }} AS im ON im.industry = sa.industry
+    
