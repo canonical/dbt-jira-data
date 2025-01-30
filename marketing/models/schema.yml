@@ -225,7 +225,7 @@ models:
 
 sources:
   - name: marketing
-    database: marketing_developer
+    database: marketing
     schema: public
     loaded_at_field: createddate
     freshness:
