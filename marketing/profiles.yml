@@ -1,12 +1,23 @@
-marketing:
-    target: dev
-    outputs:
-        dev:
-            type: trino
-            method: ldap
-            user: "{{ env_var('DBT_ENV_MARKETING_TRINO_USER') }}"
-            password: "{{ env_var('DBT_ENV_SECRET_MARKETING_TRINO_PASSWORD') }}"
-            host: "{{ env_var('DBT_ENV_MARKETING_TRINO_HOST') }}"
-            catalog: "{{ env_var('DBT_ENV_MARKETING_CATALOG') }}"
-            schema: "{{ env_var('DBT_ENV_MARKETING_SCHEMA') }}"
-            port: 443
+marketing: # Used for deployment
+  target: ldap
+  outputs:
+    dev:
+      type: trino
+      method: ldap
+      user: "{{ env_var('DBT_ENV_MARKETING_TRINO_USER') }}"
+      password: "{{ env_var('DBT_ENV_SECRET_MARKETING_TRINO_PASSWORD') }}"
+      host: "{{ env_var('DBT_ENV_MARKETING_TRINO_HOST') }}"
+      catalog: "{{ env_var('DBT_ENV_MARKETING_CATALOG') }}"
+      schema: "{{ env_var('DBT_ENV_MARKETING_SCHEMA') }}"
+      port: 443
+      ssl: true
+marketing-dev: # Used for local development
+  target: oauth
+  outputs:
+    oauth:
+      type: trino
+      method: oauth
+      host: "{{ env_var('DBT_ENV_MARKETING_TRINO_HOST') }}"
+      catalog: "{{ env_var('DBT_ENV_MARKETING_CATALOG') }}"
+      schema: "{{ env_var('DBT_ENV_MARKETING_SCHEMA') }}"
+      port: 443
