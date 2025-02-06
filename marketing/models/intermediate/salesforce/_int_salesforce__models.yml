@@ -1,0 +1,17 @@
+models:
+  - name: int_salesforce_contacts_structured_for_history
+    description: Salesforce contacts with pseudo history columns for joining purposes.
+  - name: int_salesforce_contacts_joined_for_no_lead_relation
+    description: Pseudo history structure for contacts created directly.
+  - name: int_salesforce_first_campaigns_associated_to_leads
+    description: Relating lead IDs to the non-operational campaigns they first became the members of.
+  - name: int_salesforce_lead_contact_history
+    description: Salesforce leads and associated contacts with history records.
+  - name: int_salesforce_leadsources_added
+    description: Salesforce leads with lead source grouping added.
+  - name: int_salesforce_mapped_account_owner_roles_to_groups
+    description: Salesforce user roles associated with their groups.
+  - name: int_salesforce_mapped_accounts_to_industry
+    description: Salesforce account industries associated with their groups.
+  - name: int_salesforce_mapped_leadsources_to_groups
+    description: Salesforce lead sources associated with their groups.

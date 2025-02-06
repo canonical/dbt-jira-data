@@ -33,5 +33,10 @@ flags:
 # files using the `{{ config(...) }}` macro.
 models:
   dbt_trino_stg:
-    marketing:
+    staging:
       +materialized: table
+    intermediate:
+      +materialized: emphemeral
+    marts:
+      +materialized: table
+    

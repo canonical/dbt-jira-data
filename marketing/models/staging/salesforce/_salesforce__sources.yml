@@ -1,26 +1,8 @@
 version: 2
 
-models:
-  - name: opportunity_contract
-    description: lists the contracts with linked opportunities
-    columns:
-    - name: id
-      description: salesforce id
-    - name: accountid
-      description: associated account id
-  - name: contract_opportunity
-    description: lists the opportunities with linked contracts
-    columns:
-    - name: amount
-      description: opportunity amount
-    - name: stagename
-      description: opportunity stage name 
-    - name: contractterm
-      description: contract term
-
 sources:
-  - name: marketing
-    database: marketing
+  - name: marketing_salesforce
+    database: marketing_developer
     schema: public
     loaded_at_field: createddate
     freshness:
@@ -48,12 +30,3 @@ sources:
       - name: salesforce_campaignmember
         freshness:
           warn_after: {count: 1, period: day}
-    
-  - name: sales
-    database: sales
-    schema: public
-    tables:
-    - name: salesforce_contract
-    loaded_at_field: createddate
-    freshness:
-      warn_after: {count: 12, period: hour}
