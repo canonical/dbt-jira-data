@@ -10,3 +10,13 @@ template:
             catalog: "{{ env_var('DBT_ENV_TEMPLATE_CATALOG') }}"
             schema: "{{ env_var('DBT_ENV_TEMPLATE_SCHEMA') }}"
             port: 443
+template-dev:
+    target: oauth
+    outputs:
+        oauth:
+            type: trino
+            method: oauth
+            host: "{{ env_var('DBT_ENV_TEMPLATE_TRINO_HOST') }}"
+            catalog: "{{ env_var('DBT_ENV_TEMPLATE_CATALOG') }}"
+            schema: "{{ env_var('DBT_ENV_TEMPLATE_SCHEMA') }}"
+            port: 443

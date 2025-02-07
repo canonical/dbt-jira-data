@@ -26,36 +26,49 @@ pip install python-dotenv
 ### Preparing a dbt project
 
 Each team should have their own directory within this repository containing at the very least:
-* `dbt_project.yml`
-* `profiles.yml` file
+* `dbt_project.yml` modified with the appropriate value for `profile`.
+* `profiles.yml` file.
 * `models` directory with a `schema.yml` file and any desired `.sql` file(s).
-* `schedules.yml` file (not needed when running locally)
+* `schedules.yml` file.
 
 You may check the `template` directory to see a sample dbt project illustrating some of the available features.
 
 ### Authenticating with Trino
 
-Authentication with Trino can be done using LDAP (username+password). Acquire a username/password pair with the proper authorizations from the Data Federation team.
+When running commands locally, authentication with Trino is done using Oauth. When running a dbt command, a browser window will open to perform authentication.
 
-The value of `your_team_name` in the `profiles.yml` file should match the profile property of `dbt_project.yml`. Replace the instances of `<TEAM>` below with the appropriate value.
+The value of `<team>-dev` in the `profiles.yml` file should match the profile property of `dbt_project.yml`.
+Replace the instances of `<team>` and `<TEAM>` below with the appropriate value – it should match the project directory name.
 
 #### `profiles.yml`
 ```yaml
-your_team_name:
-    target: dev
-    outputs:
-        dev:
-            type: trino
-            method: ldap
-            user: "{{ env_var('DBT_ENV_<TEAM>_TRINO_USER') }}"
-            password: "{{ env_var('DBT_ENV_SECRET_<TEAM>_TRINO_PASSWORD') }}"
-            host: "{{ env_var('DBT_ENV_<TEAM>_TRINO_HOST') }}"
-            catalog: "{{ env_var('DBT_ENV_<TEAM>_CATALOG') }}"
-            schema: "{{ env_var('DBT_ENV_<TEAM>_SCHEMA') }}"
-            port: 443
+<team>: # Used for deployment
+  target: ldap
+  outputs:
+    dev:
+      type: trino
+      method: ldap
+      user: "{{ env_var('DBT_ENV_<TEAM>_TRINO_USER') }}"
+      password: "{{ env_var('DBT_ENV_SECRET_<TEAM>_TRINO_PASSWORD') }}"
+      host: "{{ env_var('DBT_ENV_<TEAM>_TRINO_HOST') }}"
+      catalog: "{{ env_var('DBT_ENV_<TEAM>_CATALOG') }}"
+      schema: "{{ env_var('DBT_ENV_<TEAM>_SCHEMA') }}"
+      port: 443
+      ssl: true
+<team>-dev: # Used for local development
+  target: oauth
+  outputs:
+    oauth:
+      type: trino
+      method: oauth
+      host: "{{ env_var('DBT_ENV_<TEAM>_TRINO_HOST') }}"
+      catalog: "{{ env_var('DBT_ENV_<TEAM>_CATALOG') }}"
+      schema: "{{ env_var('DBT_ENV_<TEAM>_SCHEMA') }}"
+      port: 443
 ```
 
 #### `.env`
+Keep a single `.env` in the root of the repository.
 ```
 # The username and password for the Trino instance.
 # Variables starting with `DBT_ENV_SECRET` are omitted from logs.
@@ -64,7 +77,7 @@ DBT_ENV_SECRET_<TEAM>_TRINO_PASSWORD=<password>
 # The URL of the Trino instance.
 DBT_ENV_<TEAM>_TRINO_HOST=<hostname> # e.g. trino.ps6.staging.canonical.com
 DBT_ENV_<TEAM>_CATALOG=<catalog> # e.g. marketing_developer.
-DBT_ENV_<TEAM>_SCHEMA=<schema> # e.g. public
+DBT_ENV_<TEAM>_SCHEMA=<schema> # e.g. public for deployment, your_name for development
 ```
 
 #### References
@@ -74,17 +87,14 @@ DBT_ENV_<TEAM>_SCHEMA=<schema> # e.g. public
 
 ### Running dbt
 
-Use `dotenv` to load the environment variables, then run the desired dbt command:
-```sh
-dotenv -f .env run dbt run
-```
+Use `make` to run the desired dbt command.
 Available dbt commands:
-* `dbt run`: build models in the data platform
-* `dbt test`: test models according to rules in YAML files
-* `dbt docs generate`: generate a docs site using descriptions in the YAML files
-* `dbt docs serve`: serve the previously generated docs in a web server
-* `dbt build`: test + run
-* `dbt seed`: build seeds according to configuration
+* `run`: build models in the data platform
+* `test`: test models according to rules in YAML files
+* `docs`: generate a docs site using descriptions in the YAML files
+* `build`: test + run
+* `seed`: build seeds according to configuration
+* `clean`: clean targets and artifacts
 
 #### References
 * [Run your dbt projects | dbt Developer Hub](https://docs.getdbt.com/docs/running-a-dbt-project/run-your-dbt-projects)
