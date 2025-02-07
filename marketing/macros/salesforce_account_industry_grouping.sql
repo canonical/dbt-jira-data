@@ -1,4 +1,4 @@
-{% macro account_industry_bucket(industry_column) %}
+{% macro salesforce_account_industry_grouping(industry_column) %} 
 CASE
     WHEN REGEXP_LIKE(
         LOWER({{ industry_column }}),
@@ -45,5 +45,4 @@ CASE
         '(energy|gas|oil|mining).*'
     ) THEN 'Energy'
     ELSE 'Other'
-END
-{% endmacro %}
+END {% endmacro %}

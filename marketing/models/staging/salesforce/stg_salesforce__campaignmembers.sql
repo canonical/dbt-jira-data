@@ -1,8 +1,8 @@
 with source as (
     select
         *
-    FROM
-        { { source("marketing_salesforce", "salesforce_campaignmember") } }
+    from
+        {{ source("marketing_salesforce", "salesforce_campaignmember") }}
 ),
 staged as (
     select
@@ -12,6 +12,8 @@ staged as (
         createddate as campaignmember_created_date
     from
         source as s
+    where
+        createddate >= (current_timestamp - interval '2' year)
 )
 select
     *

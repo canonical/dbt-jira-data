@@ -1,20 +1,20 @@
 with source as (
     select
         *
-    FROM
+    from
         {{ source("marketing_salesforce", "salesforce_leadhistory") }}
 ),
 staged as (
     select
         leadid as history_lead_id,
-        CAST(createddate AS TIMESTAMP) AS history_record_date,
+        cast(createddate as timestamp) as history_record_date,
         field as history_field,
         oldvalue as history_field_old_value,
         newvalue as history_field_new_value
     from
         source
-    where field in ('Status', 'created', 'Google_Analytics_User_ID__c')
-    and createddate >= (current_timestamp - INTERVAL '2' YEAR)
+    where field in ('status', 'created', 'google_analytics_user_id__c')
+    and createddate >= (current_timestamp - interval '2' year)
 )
 select
     *

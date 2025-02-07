@@ -1,4 +1,4 @@
-{% macro account_owner_role_bucket(role_column) %} 
+{% macro salesforce_user_role_grouping(role_column) %} 
 case
     when {{ role_column }} = 'Sales - Manager Americas - Enterprise'
     or {{ role_column }} = 'Sales - Americas - Enterprise' then 'Americas - Enterprise'
@@ -44,5 +44,4 @@ case
     when {{ role_column }} = 'Sales Engineer-Datacenter' then 'Sales Engineer-Datacenter'
     when {{ role_column }} = 'Sales - VP Silicon IHV Alliances' then 'Sales - VP Silicon IHV Alliances'
     else 'Other'
-end
-{% endmacro %}
+end {% endmacro %}
