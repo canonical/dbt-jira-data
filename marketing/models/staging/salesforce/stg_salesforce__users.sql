@@ -1,7 +1,7 @@
 with source as (
     select
         *
-    FROM
+    from
         {{ source("marketing_salesforce", "salesforce_user") }}
 ),
 staged as (
