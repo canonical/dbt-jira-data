@@ -6,7 +6,12 @@ schedules:
       - staging
   - name: dbt_trino_stg__marketing__daily
     model: +contract_opportunity
-    interval: hourly
+    interval: daily
+    env:
+      - staging
+  - name: sf_accounts_with_owners_and_verticals
+    model: +sf_accounts_with_owners_and_verticals
+    interval: daily
     env:
       - staging
 
