@@ -15,6 +15,8 @@ int_first_campaigns as (
         *
     from
         {{ ref("int_salesforce_first_campaigns_associated_to_leads") }}
+    where
+        campaignmembership_sequence = 1
 ),
 mart as (
 select

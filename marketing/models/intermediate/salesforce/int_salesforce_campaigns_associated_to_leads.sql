@@ -38,6 +38,7 @@ intermediate as (
 select
     campaignmember_lead_id,
     campaign_name as campaignmember_first_campaign
+    seq as campaignmembership_sequence
 from
     campaign_data
 where
