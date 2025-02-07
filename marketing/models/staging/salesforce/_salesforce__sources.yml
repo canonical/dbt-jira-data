@@ -1,0 +1,30 @@
+version: 2
+
+sources:
+  - name: marketing_salesforce
+    database: marketing_developer
+    schema: public
+    loaded_at_field: createddate
+    freshness:
+      warn_after: { count: 12, period: hour }
+    tables:
+      - name: salesforce_opportunity
+      - name: salesforce_leadhistory
+      - name: salesforce_lead
+      - name: salesforce_contact
+        freshness:
+          warn_after: { count: 1, period: day }
+      - name: salesforce_account
+        freshness:
+          warn_after: { count: 1, period: day }
+      - name: salesforce_user
+        freshness: null
+      - name: salesforce_userrole
+        freshness: null
+      - name: salesforce_campaign
+        loaded_at_field: lastmodifieddate
+        freshness:
+          warn_after: { count: 1, period: day }
+      - name: salesforce_campaignmember
+        freshness:
+          warn_after: {count: 1, period: day}
