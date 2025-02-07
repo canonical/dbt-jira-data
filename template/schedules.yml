@@ -9,3 +9,8 @@ schedules:
     interval: weekly
     env:
       - production
+  - name: your_other_model
+    model: parent_a parent_b your_other_model
+    interval: "* 17 * * *" # Run daily at 17:00 UTC
+    env:
+      - staging
