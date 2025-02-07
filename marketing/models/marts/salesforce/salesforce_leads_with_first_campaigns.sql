@@ -14,7 +14,7 @@ int_first_campaigns as (
     select
         *
     from
-        {{ ref("int_salesforce_first_campaigns_associated_to_leads") }}
+        {{ ref("int_salesforce_campaigns_associated_to_leads") }}
     where
         campaignmembership_sequence = 1
 ),
