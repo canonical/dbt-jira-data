@@ -11,8 +11,9 @@ jobs:
   yaml_validator:
     runs-on: ubuntu-latest
     steps:
-      - name: Lint YAML
+      - name: Checkout
         uses: actions/checkout@v3
+      - name: Lint YAML
         run: yamllint **/schedules.yaml
       - name: Validate YAML with JSON Schema
         uses: brittonhayes/validate-yaml@v0.5.1
