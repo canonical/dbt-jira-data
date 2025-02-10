@@ -11,9 +11,12 @@ jobs:
   yaml_validator:
     runs-on: ubuntu-latest
     steps:
-      - name: Validate YAML
-        uses: brittonhayes/validate-yaml@0.5.1
+      - name: Lint YAML
+        uses: actions/checkout@v3
+        run: yamllint **/schedules.yaml
+      - name: Validate YAML with JSON Schema
+        uses: brittonhayes/validate-yaml@v0.5.1
         with:
           schemaPath: '.github/workflows/schedules_schema.json'
           files: |
-            marketing/schedules.yaml
+            **/schedules.yaml
