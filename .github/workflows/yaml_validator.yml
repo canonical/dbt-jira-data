@@ -1,0 +1,17 @@
+# Validate YAML files
+name: YAML validator
+
+on:
+  pull_request:
+    branches: [ 'main' ]
+
+jobs:
+  yaml_validator:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate YAML
+        uses: brittonhayes/validate-yaml@0.5.1
+        with:
+          schemaPath: '.github/workflows/schedules_schema.json'
+          files: |
+            marketing/schedules.yaml

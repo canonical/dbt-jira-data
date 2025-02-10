@@ -1,0 +1,12 @@
+{
+  "schedules": [
+    {
+      "name": "string",
+      "model": "string",
+      "interval": "string",
+      "env?": [
+        "string"
+      ]
+    }
+  ]
+}
