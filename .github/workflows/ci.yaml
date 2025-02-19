@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [ 'main' ]
+
+jobs:
+  get-changed-directories-list:
+    name: Get Changed Directories List
+    uses: ./.github/workflows/get_changed_directories.yaml
+
+  lint:
+    name: Lint YAML and SQL
+    runs-on: ubuntu-latest
+    if: ${{ needs.get-changed-directories-list.outputs.unique_dirs != '[""]' }}
+    needs: 
+      - get-changed-directories-list
+    strategy:
+      matrix:
+        dir: ${{ fromJSON(needs.get-changed-directories-list.outputs.unique_dirs) }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install poetry
+        run: |
+          pip install poetry
+          poetry install --no-root
+
+      - name: Lint YAML
+        uses: ./.github/actions/yaml_lint
+        with:
+          dir: ${{ matrix.dir }}
+          rules: .github/config/yaml_rules.yaml
+
+      - name: Validate YAML
+        if: success() || failure() # run this step even if the previous step failed
+        uses: ./.github/actions/yaml_validate
+        with:
+          dir: ${{ matrix.dir }}
+          schema: .github/config/schedules_schema.json
+
+      - name: Lint SQL
+        if: success() || failure() # run this step even if the previous step failed
+        uses: ./.github/actions/sql_lint
+        with:
+          dir: ${{ matrix.dir }}

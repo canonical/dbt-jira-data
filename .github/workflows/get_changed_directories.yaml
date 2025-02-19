@@ -1,0 +1,64 @@
+# Copyright 2023 Canonical Ltd.
+# See LICENSE file for licensing details.
+
+name: Get list of updated workflow directories
+
+on:
+  workflow_call:
+    outputs:
+      unique_dirs:
+        value: ${{ jobs.get-changed-directories.outputs.unique_dirs }}
+      libs_changed:
+        value: ${{ jobs.get-changed-directories.outputs.libs_changed }}
+
+jobs:
+  get-changed-directories:
+    runs-on: ubuntu-latest
+    outputs:
+      unique_dirs: ${{ steps.get-dirs.outputs.unique_dirs_json }}
+      libs_changed: ${{ steps.get-dirs.outputs.libs_changed }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Get list of changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v45
+
+      - name: Extract unique modified directories
+        id: get-dirs
+        run: |
+          # List directories in the repository root
+          dirs=$(ls -d */ | awk -F'/' '{print $1}' | grep -v 'template' | sort -u)
+
+          # List all modified files
+          changed_files="${{ steps.changed-files.outputs.all_changed_files }}"
+          echo "changed_files=$changed_files"
+          # Extract the root directories
+          changed_root_files=$(
+            echo "$changed_files" |
+            # Convert spaces to newlines
+            tr ' ' '\n' |
+            # Extract the first part of the path
+            awk -F'/' '{print $1}' |
+            # Remove duplicates
+            sort -u
+          )
+          # Extract the values that appear in both lists
+          unique_root_dirs=$(comm -12 <(echo "$dirs") <(echo "$changed_root_files"))
+
+          # Convert to JSON array format for use in matrix
+          json_unique_root_dirs=$(
+            echo "$unique_root_dirs" \
+            | jq -R . \
+            | jq -s . \
+            | sed 's/^[ \t]*//;s/[ \t]*$//' \
+            | jq -c .
+          )
+
+          # Output to GitHub Actions environment
+          echo "unique_dirs_json=$json_unique_root_dirs" >> $GITHUB_ENV
+          echo "unique_dirs_json=$json_unique_root_dirs" >> $GITHUB_OUTPUT
+          echo "changed directories: $json_unique_root_dirs"

@@ -1,0 +1,36 @@
+# Based on yamllint relaxed rules
+---
+
+extends: default
+
+ignore: |
+  .github/
+  dbt_packages/
+  template/
+
+rules:
+  braces:
+    level: error  
+    max-spaces-inside: 1
+  brackets:
+    level: error
+    max-spaces-inside: 1
+  colons:
+    level: error
+  commas:
+    level: error
+  comments: disable
+  comments-indentation: disable
+  document-start: disable
+  empty-lines:
+    level: error
+  hyphens:
+    level: error
+  indentation:
+    level: error
+    indent-sequences: consistent
+  line-length:
+    max: 85
+    level: error
+    allow-non-breakable-inline-mappings: true
+  truthy: disable

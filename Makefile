@@ -1,4 +1,4 @@
-# The name of the python package/project
+#The name of the python package/project
 PY_PACKAGE := canonical_dbt_models
 
 # Paths to venv executables
@@ -16,3 +16,25 @@ install:
 run:
 	$(POETRY) run dotenv -f .env run \
 		dbt run --project-dir ./$(project) --profiles-dir ./$(project)
+
+.PHONY: actions
+actions:
+	gh act \
+		--var-file .env \
+		--secret-file .env \
+		-P self-hosted=-self-hosted \
+		pull_request
+
+.PHONY: lint
+lint:
+	$(POETRY) run yamllint \
+		-c .github/config/yaml_rules.yaml .
+	$(POETRY) run sqlfluff lint \
+		--config .github/config/sql_rules.toml \
+		--dialect trino .
+
+.PHONY: fmt
+fmt:
+	$(POETRY) run sqlfluff format \
+		--config .github/config/sql_rules.toml \
+		--dialect trino .

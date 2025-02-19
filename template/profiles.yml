@@ -1,7 +1,7 @@
 template:
-    target: dev
+    target: prod
     outputs:
-        dev:
+        prod:
             type: trino
             method: ldap
             user: "{{ env_var('DBT_ENV_TEMPLATE_TRINO_USER') }}"
@@ -11,9 +11,9 @@ template:
             schema: "{{ env_var('DBT_ENV_TEMPLATE_SCHEMA') }}"
             port: 443
 template-dev:
-    target: oauth
+    target: dev
     outputs:
-        oauth:
+        dev:
             type: trino
             method: oauth
             host: "{{ env_var('DBT_ENV_TEMPLATE_TRINO_HOST') }}"

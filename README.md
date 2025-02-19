@@ -6,22 +6,18 @@ and manages the materialization of tables, documentation and tests.
 
 ## Usage
 
-### Installing dbt Core
+### Installing dependencies
 
-It is recommended to install dbt using a virtual environment and pip.
+`poetry` is used to manage dependencies, itself installed via `pipx`.
+
 ```sh
-python3 -m venv .venv
-source .venv/bin/activate
-pip install dbt-core dbt-trino
+sudo apt install pipx
+pipx install poetry
+poetry config keyring.enabled false
+make install
 ```
 
-Also install the dotenv package for loading environment variables:
-```sh
-pip install python-dotenv
-```
-
-#### References
-* [Install with pip | dbt Developer Hub](https://docs.getdbt.com/docs/core/pip-install)
+Upon completion, use `poetry run dbt --version` to verify the installation.
 
 ### Preparing a dbt project
 

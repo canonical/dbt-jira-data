@@ -1,0 +1,20 @@
+name: SQL Validator
+description: Validate SQL files using sqlfluff
+
+inputs:
+  dir:
+    description: Directory containing dbt project
+    required: true
+    type: string
+
+runs:
+  using: "composite"
+  steps:
+    - name: Lint SQL
+      shell: bash
+      run: |
+        poetry run \
+        sqlfluff lint \
+        --config .github/config/sql_rules.toml \
+        ${{ inputs.dir }}/models \
+        --dialect trino

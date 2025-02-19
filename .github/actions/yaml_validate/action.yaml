@@ -1,0 +1,41 @@
+name: YAML validator
+description: Validates YAML files with JSON Schema
+
+inputs:
+  dir:
+    description: Directory containing dbt project
+    required: true
+    type: string
+  schema:
+    description: JSON Schema file
+    required: true
+    type: string
+
+runs:
+  using: composite
+  steps:
+    - name: Install Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 18
+
+    - name: Install schema validator
+      run: npm install -g yaml-schema-validator
+      shell: bash
+
+    - name: Validate YAML files
+      run: |
+        # Check if file exists with .yml or .yaml extension
+        file_name="schedules"
+        if [ -e "${{ inputs.dir }}/${file_name}.yml" ]; then
+          input_file="${{ inputs.dir }}/${file_name}.yml"
+        elif [ -e "${{ inputs.dir }}/${file_name}.yaml" ]; then
+          input_file="${{ inputs.dir }}/${file_name}.yaml"
+        else
+          echo "No ${file_name}.yml or ${file_name}.yaml file found in ${{ inputs.dir }}"
+          exit 1
+        fi
+        npx schema validate -e \
+        -s ${{ inputs.schema }} \
+        -f $input_file
+      shell: bash
