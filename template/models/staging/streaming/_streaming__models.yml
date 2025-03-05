@@ -1,0 +1,17 @@
+version: 2
+
+models:
+  - name: stg_streaming__netflix
+    description: >
+      This model contains the movies and TV shows that are currently streaming on Netflix.
+    columns:
+      - name: id
+        description: The IMDb ID for the movie or TV show.
+      - name: source
+        description: "netflix"
+      - name: title
+        description: The title of the movie or TV show.
+      - name: available_countries
+        description: The countries in which the movie or TV show is available.
+      - name: type
+        description: Whether the entry is a movie or TV show.

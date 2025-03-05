@@ -1,10 +1,18 @@
 [sqlfluff]
-templater = jinja
-max_line_length = 80
-exclude_rules = LT09, LT10
+dialect = trino
+templater = dbt
+max_line_length = 100
+ignore = templating
 
 [sqlfluff:templater:jinja]
 apply_dbt_builtins = True
+load_macros_from_path = ./macros
+
+[sqlfluff:templater:dbt]
+project_dir = .
+profiles_dir = .
+profile = template
+target = dev
 
 [sqlfluff:rules]
 allow_scalar = True

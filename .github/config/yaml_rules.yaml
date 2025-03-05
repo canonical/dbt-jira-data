@@ -30,7 +30,7 @@ rules:
     level: error
     indent-sequences: consistent
   line-length:
-    max: 85
+    max: 120
     level: error
     allow-non-breakable-inline-mappings: true
   truthy: disable

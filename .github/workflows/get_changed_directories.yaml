@@ -31,7 +31,7 @@ jobs:
         id: get-dirs
         run: |
           # List directories in the repository root
-          dirs=$(ls -d */ | awk -F'/' '{print $1}' | grep -v 'template' | sort -u)
+          dirs=$(ls -d */ | awk -F'/' '{print $1}' | sort -u)
 
           # List all modified files
           changed_files="${{ steps.changed-files.outputs.all_changed_files }}"

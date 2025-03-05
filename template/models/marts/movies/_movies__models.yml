@@ -1,4 +1,3 @@
-
 version: 2
 
 models:
@@ -52,6 +51,18 @@ unit_tests:
           - {country: 'CA', title: 'The Godfather: Part II'}
     expect:
       rows:
-        - {num_apple_movies: 3, num_amazon_movies: 2, num_netflix_movies: 2, num_hbo_movies: 2, country: 'United States'}
-        - {num_apple_movies: 2, num_amazon_movies: 1, num_netflix_movies: 0, num_hbo_movies: 0, country: 'Brazil'}
-        - {num_apple_movies: 0, num_amazon_movies: 0, num_netflix_movies: 0, num_hbo_movies: 1, country: 'Canada'}
+        - num_apple_movies: 3,
+          num_amazon_movies: 2,
+          num_netflix_movies: 2,
+          num_hbo_movies: 2,
+          country: 'United States'
+        - num_apple_movies: 2
+          num_amazon_movies: 1
+          num_netflix_movies: 0
+          num_hbo_movies: 0
+          country: 'Brazil'
+        - num_apple_movies: 0
+          num_amazon_movies: 0
+          num_netflix_movies: 0
+          num_hbo_movies: 1
+          country: 'Canada'

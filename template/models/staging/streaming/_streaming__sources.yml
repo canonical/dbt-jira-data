@@ -1,0 +1,8 @@
+version: 2
+
+sources:
+  - name: streaming
+    database: trino_catalog
+    schema: trino_catalog_schema
+    tables:
+      - name: netflix

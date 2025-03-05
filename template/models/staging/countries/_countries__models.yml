@@ -1,17 +1,7 @@
 version: 2
 
-sources:
-  - name: streaming
-    database: trino_catalog
-    schema: trino_catalog_schema
-    tables:
-    - name: apple_tv
-    - name: prime_video
-    - name: netflix
-    - name: hbo_max
-
 models:
-  - name: countries
+  - name: stg_countries__countries
     description: Country codes and names, extracted from seed.
     columns:
       - name: country_code
@@ -24,7 +14,7 @@ models:
 
 unit_tests:
   - name: check_countries
-    model: countries
+    model: stg_countries__countries
     description: "Check that the country codes and names are correct"
     given:
       - input: ref('country_codes')

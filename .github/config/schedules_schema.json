@@ -5,15 +5,17 @@
         "type": "string",
         "required": true
       },
-      "model": {
-        "type": "string",
-        "required": true
-      },
+      "models":
+      [
+        {
+          "type": "string"
+        }
+      ],
       "interval": {
         "type": "string",
         "required": true
       },
-      "env": [
+      "target": [
         {
           "type": "string",
           "allowed_values": ["dev", "stg", "prod"]

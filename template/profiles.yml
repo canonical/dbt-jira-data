@@ -1,22 +1,12 @@
 template:
-    target: prod
-    outputs:
-        prod:
-            type: trino
-            method: ldap
-            user: "{{ env_var('DBT_ENV_TEMPLATE_TRINO_USER') }}"
-            password: "{{ env_var('DBT_ENV_SECRET_TEMPLATE_TRINO_PASSWORD') }}"
-            host: "{{ env_var('DBT_ENV_TEMPLATE_TRINO_HOST') }}"
-            catalog: "{{ env_var('DBT_ENV_TEMPLATE_CATALOG') }}"
-            schema: "{{ env_var('DBT_ENV_TEMPLATE_SCHEMA') }}"
-            port: 443
-template-dev:
     target: dev
     outputs:
         dev:
             type: trino
-            method: oauth
-            host: "{{ env_var('DBT_ENV_TEMPLATE_TRINO_HOST') }}"
-            catalog: "{{ env_var('DBT_ENV_TEMPLATE_CATALOG') }}"
-            schema: "{{ env_var('DBT_ENV_TEMPLATE_SCHEMA') }}"
+            method: "{{ env_var('DBT_ENV_AUTH_METHOD') }}"
+            user: "{{ env_var('DBT_ENV_TRINO_USER') }}"
+            password: "{{ env_var('DBT_ENV_SECRET_TRINO_PASSWORD') }}"
+            host: "{{ env_var('DBT_ENV_TRINO_HOST') }}"
+            catalog: "{{ env_var('DBT_ENV_CATALOG') }}"
+            schema: "{{ env_var('DBT_ENV_SCHEMA') }}"
             port: 443

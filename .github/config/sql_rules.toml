@@ -1,10 +1,12 @@
 [sqlfluff]
 templater = jinja
 max_line_length = 100
-exclude_rules = LT09, LT10, ST06
+# ignore dbt templating when running in github actions
+ignore = templating
 
 [sqlfluff:templater:jinja]
 apply_dbt_builtins = True
+load_macros_from_path = ../../
 
 [sqlfluff:rules]
 allow_scalar = True
