@@ -1,0 +1,87 @@
+name: Deploy dbt worker
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version of the dbt workflow. Leave blank for latest.'
+        type: string
+      environment:
+        description: 'Environment from which to fetch secrets'
+        type: string
+        default: 'stg'
+
+env:
+  http_proxy: "http://squid.internal:3128"
+  https_proxy: "http://squid.internal:3128"
+
+
+jobs:
+  deploy:
+    permissions:
+      contents: write
+    name: Deploy dbt worker
+    environment: ${{ inputs.environment }}
+    runs-on: [ self-hosted, self-hosted-linux-amd64-jammy-private-endpoint-medium ]
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Dependencies
+        shell: bash
+        run: |
+            sudo snap install juju --channel=3.4/stable --classic
+            sudo snap install vault
+
+      - name: Set up environment variables
+        shell: bash
+        run: |
+          echo "no_proxy=radosgw.ps6.canonical.com,vault.admin.canonical.com,api.charmhub.io" >> $GITHUB_ENV
+          echo "http_proxy=http://squid.internal:3128" >> $GITHUB_ENV
+          echo "https_proxy=http://squid.internal:3128" >> $GITHUB_ENV
+
+          echo "JUJU_CONTROLLER=${{ vars.JUJU_CONTROLLER }}" >> $GITHUB_ENV
+          echo "JUJU_MODEL=${{ vars.JUJU_MODEL }}" >> $GITHUB_ENV
+
+          echo "VAULT_ADDR=https://vault.admin.canonical.com:8200"  >> $GITHUB_ENV
+          echo "VAULT_SECRET_PATH_ROLE=${{ vars.VAULT_SECRET_PATH_ROLE }}" >> $GITHUB_ENV
+
+
+      - name: Get latest version tag from GitHub API
+        id: get-version
+        shell: bash
+        run: |
+          if [ -z ${{ inputs.version }} ]; then
+            json=$(curl -L \
+              -H "Accept: application/vnd.github+json" \
+              -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              -s https://api.github.com/orgs/canonical/packages/container/dbt-workflow/versions)
+
+            version=$(echo $json |
+              jq -r 'sort_by(.created_at) | reverse | .[0] | .metadata.container.tags[0]')
+
+            echo "VERSION=${version}" >> $GITHUB_ENV
+          else
+            echo "VERSION=${{ inputs.version }}" >> $GITHUB_ENV
+          fi
+
+          echo 'Found version: ${{ env.VERSION }}'
+          echo 'Found version: ${VERSION}'
+
+      - name: Load credentials from vault
+        run: bash ./.github/scripts/load-creds-lxc.sh
+        shell: bash
+        env:
+          VAULT_APPROLE_ROLE_ID: ${{ secrets.vault_approle_role_id }}
+          VAULT_APPROLE_SECRET_ID: ${{ secrets.vault_approle_secret_id }}
+
+      - name: Deploy charm
+        run: |
+          bash ./.github/scripts/deploy-charm.sh
+        shell: bash
+        env:
+          DOCKER_REGISTRY: ghcr.io/canonical/dbt-workflow
+          APP_VERSION: ${{ env.VERSION }}
+          WORKFLOW_NAME: ${{ github.event.repository.name }}
