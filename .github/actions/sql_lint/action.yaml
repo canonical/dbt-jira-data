@@ -5,7 +5,6 @@ inputs:
   dir:
     description: Directory containing dbt project
     required: true
-    type: string
 
 runs:
   using: "composite"

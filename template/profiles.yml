@@ -2,11 +2,10 @@ template:
     target: dev
     outputs:
         dev:
-            type: trino
-            method: "{{ env_var('DBT_ENV_AUTH_METHOD') }}"
-            user: "{{ env_var('DBT_ENV_TRINO_USER') }}"
-            password: "{{ env_var('DBT_ENV_SECRET_TRINO_PASSWORD') }}"
-            host: "{{ env_var('DBT_ENV_TRINO_HOST') }}"
-            catalog: "{{ env_var('DBT_ENV_CATALOG') }}"
-            schema: "{{ env_var('DBT_ENV_SCHEMA') }}"
+            type: "{{ env_var('DBT_ENV_TEMPLATE_CONN_TYPE') }}"
+            method: "{{ env_var('DBT_ENV_TEMPLATE_TRINO_METHOD') }}"
+            user: "{{ env_var('DBT_ENV_TEMPLATE_TRINO_USER') }}"
+            host: "{{ env_var('DBT_ENV_TEMPLATE_TRINO_HOST') }}"
+            catalog: "{{ env_var('DBT_ENV_TEMPLATE_TRINO_CATALOG') }}"
+            schema: "{{ env_var('DBT_ENV_TEMPLATE_TRINO_SCHEMA') }}"
             port: 443

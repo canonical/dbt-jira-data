@@ -1,0 +1,163 @@
+name: Additional environment variables for Temporal worker
+description: |
+  Adds additional environment variables to the Juju config
+  as well as the Juju secret-id.
+  Variables that are used by the action itself (JUJU_*, VAULT_*),
+  as well as the ones used by the worker config (TEMPORAL_*, SENTRY_*)
+  are not added to the environment.
+
+inputs:
+  all-vars:
+    description: JSON object of all environment variables ( toJSON(vars) )
+    required: true
+  secret-id:
+    description: Juju Secret ID
+    required: true
+  projects:
+    description: List of dbt projects in the repository
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Get variable keys and exclude ones used by the action or worker config
+      id: var-keys
+      shell: bash
+      run: |
+        # Get variable keys and exclude ones used by the action or worker config
+        # Disable shell history
+        set +x
+        set -eu
+        set +o history
+
+        var_keys=$(jq -r 'keys[]' <<< "$ALL_VARS")
+        exclude_patterns=(
+          "TEMPORAL_*"
+          "JUJU_*"
+          "VAULT_*"
+          "SENTRY_*"
+        )
+        for pattern in "${exclude_patterns[@]}"; do
+          var_keys=$(echo "$var_keys" | grep -v "$pattern")
+        done
+
+        # Save VAR_KEYS to environment
+        echo "VAR_KEYS<<EOF" >> $GITHUB_ENV
+        echo "$var_keys" >> $GITHUB_ENV
+        echo "EOF" >> $GITHUB_ENV
+      env:
+        ALL_VARS: ${{ inputs.all-vars }}
+
+    - name: Check for mandatory variables and set defaults
+      id: check-mandatory-vars
+      shell: bash
+      run: |
+        # Check for mandatory variables and set defaults
+        # Disable shell history
+        set +x
+        set -eu
+        set +o history
+
+        # Function to check if a variable is not in a list
+        source ./.github/scripts/not-in-list.sh
+
+        # Check for optional variables and assign defaults
+        if not_in_list "GIT_URL" "${VAR_KEYS}"; then
+          ALL_VARS=$(jq ". += {\"GIT_URL\": \"${GIT_URL}\"}" <<< "$ALL_VARS")
+        fi
+        if not_in_list "GIT_BRANCH" "${VAR_KEYS}"; then
+          ALL_VARS=$(jq '. += {"GIT_BRANCH": "main"}' <<< "$ALL_VARS")
+        fi
+        if not_in_list "GIT_USER" "${VAR_KEYS}"; then
+          ALL_VARS=$(jq '. += {"GIT_USER": "canonical"}' <<< "$ALL_VARS")
+        fi
+        if not_in_list "APP_DIR" "${VAR_KEYS}"; then
+          ALL_VARS=$(jq '. += {"APP_DIR": "/app"}' <<< "$ALL_VARS")
+        fi
+
+        mandatory_vars=(
+          "DATAHUB_URL"
+          "APP_TARGET"
+        )
+        
+        # Check required connection variables for each project
+        for project in ${PROJECTS}; do
+          upper_project=$(echo $project | tr '[:lower:]' '[:upper:]')
+
+          # CONN_TYPE is mandatory for knowing which other variables are needed
+          conn_type_key="DBT_ENV_${upper_project}_CONN_TYPE"
+          if not_in_list "${conn_type_key}" "${VAR_KEYS}"; then
+            mandatory_vars+=("DBT_ENV_${upper_project}_CONN_TYPE")
+            continue
+          fi
+
+          conn_type=$(jq -r ".$conn_type_key" <<< "$ALL_VARS")
+          # Trino specific variables
+          if [[ "$conn_type" == "trino" ]]; then
+            # Connection method is always jwt for Trino
+            if not_in_list "DBT_ENV_${upper_project}_TRINO_METHOD" "${VAR_KEYS}"; then
+              ALL_VARS=$(jq ". += {\"DBT_ENV_${upper_project}_TRINO_METHOD\": \"jwt\"}" <<< "$ALL_VARS")
+              # we might also need to override a user-provided value
+            fi
+
+            mandatory_vars+=("DBT_ENV_${upper_project}_TRINO_HOST")
+            mandatory_vars+=("DBT_ENV_${upper_project}_TRINO_CATALOG")
+            mandatory_vars+=("DBT_ENV_${upper_project}_TRINO_SCHEMA")
+          fi
+          # If we add support for other connection types, we can add more variables here
+        done
+
+        # Check for missing mandatory variables and exit if any are missing
+        missing_vars=false
+        for var in "${mandatory_vars[@]}"; do
+          if not_in_list "$var" "${VAR_KEYS}"; then
+            echo "Missing mandatory variable: $var"
+            missing_vars=true
+          fi
+        done
+        if $missing_vars; then
+          echo "Please double-check the environment variables."
+          exit 1
+        fi
+
+        # Save updated ALL_VARS to environment
+        echo "ALL_VARS<<EOF" >> $GITHUB_ENV
+        echo "$ALL_VARS" >> $GITHUB_ENV
+        echo "EOF" >> $GITHUB_ENV
+      env:
+        GIT_URL: ${{ github.server_url }}/${{ github.repository }}
+        ALL_VARS: ${{ inputs.all-vars }}
+        PROJECTS: ${{ inputs.projects }}
+
+    - name: Add environment variables to Juju config
+      id: env-vars
+      shell: bash
+      run: |
+        # Add environment variables to Juju config
+        # Disable shell history
+        set +x
+        set -eu
+        set +o history
+
+        env_file="$HOME/${WORKFLOW_NAME}-env.yaml"
+        touch $env_file
+        echo "env:" > $env_file
+
+        for key in $VAR_KEYS; do
+          value=$(jq -r ".$key" <<< "$ALL_VARS")
+          echo "  - name: ${key}" >> $env_file
+          echo "    value: ${value}" >> $env_file
+        done
+
+        echo "juju:" >> $env_file
+        echo "  - secret-id: ${SECRET_ID}" >> $env_file
+
+        source $HOME/.envrc
+        env=$(cat $env_file)
+        juju config ${WORKFLOW_NAME}-worker environment="${env}"
+        rm $env_file
+
+      env:
+        WORKFLOW_NAME: ${{ github.event.repository.name }}
+        SECRET_ID: ${{ inputs.secret-id }}
+

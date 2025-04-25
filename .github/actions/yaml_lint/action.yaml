@@ -5,11 +5,9 @@ inputs:
   dir:
     description: Directory containing dbt project
     required: true
-    type: string
   rules:
     description: Rules to lint with
     required: true
-    type: string
 
 runs:
   using: composite

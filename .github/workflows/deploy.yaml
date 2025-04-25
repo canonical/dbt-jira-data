@@ -8,8 +8,10 @@ on:
         type: string
       environment:
         description: 'Environment from which to fetch secrets'
-        type: string
-        default: 'stg'
+        type: choice
+        options:
+          - stg
+          - prod
 
 env:
   http_proxy: "http://squid.internal:3128"
@@ -47,28 +49,22 @@ jobs:
           echo "VAULT_ADDR=https://vault.admin.canonical.com:8200"  >> $GITHUB_ENV
           echo "VAULT_SECRET_PATH_ROLE=${{ vars.VAULT_SECRET_PATH_ROLE }}" >> $GITHUB_ENV
 
+          # Find all directories containing a dbt_project.yml file
+          DBT_PROJECTS=$(
+            find . -type f -name dbt_project.yml -exec dirname {} \; |
+            xargs -n1 basename |
+            sort -u
+          )
+          # use heredoc format to write multiline string to environment
+          echo "DBT_PROJECTS<<EOF" >> $GITHUB_ENV
+          echo "$DBT_PROJECTS" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
 
-      - name: Get latest version tag from GitHub API
+      - name: Get latest version tag of workflow from GitHub API
         id: get-version
-        shell: bash
-        run: |
-          if [ -z ${{ inputs.version }} ]; then
-            json=$(curl -L \
-              -H "Accept: application/vnd.github+json" \
-              -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-              -H "X-GitHub-Api-Version: 2022-11-28" \
-              -s https://api.github.com/orgs/canonical/packages/container/dbt-workflow/versions)
-
-            version=$(echo $json |
-              jq -r 'sort_by(.created_at) | reverse | .[0] | .metadata.container.tags[0]')
-
-            echo "VERSION=${version}" >> $GITHUB_ENV
-          else
-            echo "VERSION=${{ inputs.version }}" >> $GITHUB_ENV
-          fi
-
-          echo 'Found version: ${{ env.VERSION }}'
-          echo 'Found version: ${VERSION}'
+        uses: ./.github/actions/get_rock_version
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Load credentials from vault
         run: bash ./.github/scripts/load-creds-lxc.sh
@@ -82,6 +78,37 @@ jobs:
           bash ./.github/scripts/deploy-charm.sh
         shell: bash
         env:
-          DOCKER_REGISTRY: ghcr.io/canonical/dbt-workflow
-          APP_VERSION: ${{ env.VERSION }}
+          CONTAINER_URL: ghcr.io/canonical/dbt-workflow
+          APP_VERSION: ${{ steps.get-version.outputs.version }}
           WORKFLOW_NAME: ${{ github.event.repository.name }}
+
+      - name: Add auth-secrets to Juju
+        id: auth-secrets
+        uses: ./.github/actions/auth_secrets
+        with:
+          temporal-encryption-key: ${{ secrets.TEMPORAL_ENCRYPTION_KEY }}
+          temporal-auth-provider: ${{ secrets.TEMPORAL_AUTH_PROVIDER }}
+          temporal-service-account: ${{ secrets.TEMPORAL_OIDC }}
+
+      - name: Add additional secrets to Juju
+        id: secrets
+        uses: ./.github/actions/secrets
+        with:
+          all-secrets: ${{ toJSON(secrets) }}
+          projects: ${{ env.DBT_PROJECTS }}
+
+      - name: Set up environment variables
+        id: env-vars
+        uses: ./.github/actions/env_vars
+        with:
+          all-vars: ${{ toJSON(vars) }}
+          secret-id: ${{ steps.secrets.outputs.secret-id }}
+          projects: ${{ env.DBT_PROJECTS }}
+
+      - name: Configure Temporal worker
+        id: configure-worker
+        uses: ./.github/actions/configure_worker
+        with:
+          all-vars: ${{ toJSON(vars) }}
+          version: ${{ steps.get-version.outputs.version }}
+          auth-secret-id: ${{ steps.auth-secrets.outputs.secret-id }}

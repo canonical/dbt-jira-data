@@ -1,0 +1,106 @@
+name: Configure Temporal worker
+description: |
+  Runs the `juju config` command to configure the Temporal worker
+  with required secrets and environment variables.
+
+inputs:
+  version:
+    description: Semantic version of the dbt workflow in GHCR (output of get_rock_version action)
+    required: true
+  auth-secret-id:
+    description: Juju Secret ID for auth secrets (output of auth_secrets action)
+    required: true
+  all-vars:
+    description: JSON object of all environment variables ( toJSON(vars) )
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Prepare environment variables
+      id: prepare-env
+      shell: bash
+      run: |
+        # Prepare environment variables
+        # Disable shell history
+        set +x
+        set -eu
+        set +o history
+        
+        # Check for mandatory environment variables
+        missing_vars=false
+        for var in TEMPORAL_HOST TEMPORAL_QUEUE TEMPORAL_NAMESPACE; do
+          value="$(jq -r ".${var}" <<< "$ALL_VARS")"
+          if [ -z "$value" ]; then
+            echo "Missing mandatory variable: $var"
+            missing_vars=true
+          fi
+          echo "${var}=${value}" >> "$GITHUB_ENV"
+        done
+        if $missing_vars; then
+          echo "Please double-check the environment variables."
+          exit 1
+        fi
+
+        # Check for optional environment variables
+        SENTRY_DSN=$(jq -r ".SENTRY_DSN" <<< "$ALL_VARS")
+        if [ $SENTRY_DSN != null ]; then
+          # These are required only if SENTRY_DSN is set
+          SENTRY_ENVIRONMENT=$(jq -r ".SENTRY_ENVIRONMENT" <<< "$ALL_VARS")
+          SENTRY_SAMPLE_RATE=$(jq -r ".SENTRY_SAMPLE_RATE" <<< "$ALL_VARS")
+          if [ $SENTRY_ENVIRONMENT == null ] || [ $SENTRY_SAMPLE_RATE == null ]; then
+            echo "SENTRY_ENVIRONMENT or SENTRY_SAMPLE_RATE is not set"
+            echo "Please double-check the environment variables."
+            exit 1
+          else
+            echo "SENTRY_DSN=${SENTRY_DSN}" >> $GITHUB_ENV
+            echo "SENTRY_ENVIRONMENT=${SENTRY_ENVIRONMENT}" >> $GITHUB_ENV
+            echo "SENTRY_SAMPLE_RATE=${SENTRY_SAMPLE_RATE}" >> $GITHUB_ENV
+          fi
+        else
+          echo 'SENTRY_DSN=""' >> $GITHUB_ENV
+          echo 'SENTRY_ENVIRONMENT=""' >> $GITHUB_ENV
+          echo 'SENTRY_SAMPLE_RATE=1.0' >> $GITHUB_ENV
+        fi
+      env:
+        ALL_VARS: ${{ inputs.all-vars }}
+
+    - name: Configure Temporal worker
+      id: configure-worker
+      shell: bash
+      run: |
+        # Configure Temporal worker
+        # Disable shell history
+        set +x
+        set -eu
+        set +o history
+
+        worker_name="${WORKFLOW_NAME}-worker"
+        source $HOME/.envrc
+
+        # Load certificate from file
+        tls_root_cas=$(cat ./.github/scripts/tls-root-cas.txt | sed 's/\\n//g')
+
+        juju config ${worker_name} \
+          host=${TEMPORAL_HOST} \
+          queue=${TEMPORAL_QUEUE} \
+          namespace=${TEMPORAL_NAMESPACE} \
+          tls-root-cas="${tls_root_cas}" \
+          auth-secret-id=${AUTH_SECRET_ID}
+
+        # Load sentry configuration if DSN is present
+        if [[ -n "$SENTRY_DSN" ]]; then
+          juju config ${worker_name} \
+            sentry-dsn=${SENTRY_DSN} \
+            sentry-environment=${SENTRY_ENVIRONMENT} \
+            sentry-release=${WORKFLOW_NAME}@${WORKFLOW_VERSION} \
+            sentry-sample-rate=${SENTRY_SAMPLE_RATE}
+        fi
+         
+        # Wait for active worker upon successful configuration
+        juju wait-for application $worker_name --query='status == "active"' --timeout=2m
+
+      env:
+        WORKFLOW_NAME: ${{ github.event.repository.name }}
+        WORKFLOW_VERSION: ${{ inputs.version }}
+        AUTH_SECRET_ID: ${{ inputs.auth-secret-id }}

@@ -2,7 +2,7 @@
 # Deploys the workflow using Juju.
 #
 # Parameters (environment variables):
-# - DOCKER_REGISTRY - The url of the docker registry to pull the image from.
+# - CONTAINER_URL - The url of the docker registry to pull the image from.
 # - APP_VERSION - The version of the application being deployed.
 # - WORKFLOW_NAME - The name of the workflow being deployed.
 #
@@ -21,20 +21,20 @@ juju_status_output=$(juju status)
 application_name="${WORKFLOW_NAME}-worker"
 
 echo "Creating registry file"
-cat <<- EOF > "$HOME/registryconfig.yaml"
-registrypath: $DOCKER_REGISTRY/dbt-workflow:$APP_VERSION
+cat <<-EOF >"$HOME/registryconfig.yaml"
+	registrypath: "${CONTAINER_URL}:${APP_VERSION}"
 EOF
 
 echo "Check if the application name exists in the output"
 # Check if the application name exists in the output.
 if echo "$juju_status_output" | grep -qi "$application_name"; then
-    echo "Application '$application_name' already exists, refreshing."
-    juju refresh $application_name --resource temporal-worker-image=$HOME/registryconfig.yaml
-    # Application should either become active blocked if it is missing configuration.
-    juju wait-for application $application_name --query='status == "active" || status == "blocked"' --timeout=2m
+	echo "Application '$application_name' already exists, refreshing."
+	juju refresh $application_name --resource temporal-worker-image=$HOME/registryconfig.yaml
 else
-    echo "Application '$application_name' does not exist, deploying."
-    juju deploy temporal-worker-k8s --channel edge --resource temporal-worker-image=$HOME/registryconfig.yaml $application_name
-    # Application should either become active blocked if it is missing configuration.
-    juju wait-for application $application_name --query='status == "active" || status == "blocked"' --timeout=2m
+	echo "Application '$application_name' does not exist, deploying."
+	juju deploy temporal-worker-k8s --channel edge --resource temporal-worker-image=$HOME/registryconfig.yaml $application_name
 fi
+# Application should either become active blocked if it is missing configuration.
+# During an initial deployment, it is expected that the application will be blocked
+# until the secrets/variables are configured.
+juju wait-for application $application_name --query='status == "active" || status == "blocked"' --timeout=2m

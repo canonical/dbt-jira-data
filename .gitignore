@@ -7,3 +7,6 @@ logs/
 .env
 .vscode
 .user.yml
+
+.DS_Store
+._.DS_Store

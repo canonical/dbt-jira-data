@@ -1,0 +1,40 @@
+name: SQL Validator
+description: Get latest version tag using GitHub API
+
+inputs:
+  version:
+    description: Version of the dbt workflow. Leave blank for latest.
+    required: false
+  github-token:
+    description: GitHub token
+    required: true
+
+outputs:
+  version:
+    description: Version of the dbt workflow
+    value: ${{ steps.get-version.outputs.version }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Get version tag
+      id: get-version
+      shell: bash
+      run: |
+        if [ -z ${{ inputs.version }} ]; then
+          json=$(curl -L \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${GITHUB_TOKEN}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            -s https://api.github.com/orgs/canonical/packages/container/dbt-workflow/versions)
+
+          version=$(echo $json |
+            jq -r 'sort_by(.created_at) | reverse | .[0] | .metadata.container.tags[0]')
+        else
+          version=${{ inputs.version }}
+        fi
+
+        echo "version=${version}" >> $GITHUB_OUTPUT
+        echo "Found version: ${version}"
+      env:
+        GITHUB_TOKEN: ${{ inputs.github-token }}
