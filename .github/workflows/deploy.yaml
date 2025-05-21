@@ -35,6 +35,8 @@ jobs:
         run: |
             sudo snap install juju --channel=3.4/stable --classic
             sudo snap install vault
+            # For YAML manipulation
+            sudo snap install yq
 
       - name: Set up environment variables
         shell: bash
@@ -55,10 +57,16 @@ jobs:
             xargs -n1 basename |
             sort -u
           )
+          if [ $WORKFLOW_NAME != "dbt-template" ]; then
+            # Remove template from list of projects if the current repository is not the template
+            DBT_PROJECTS=$(echo $DBT_PROJECTS | sed '/^template$/d')
+          fi
           # use heredoc format to write multiline string to environment
           echo "DBT_PROJECTS<<EOF" >> $GITHUB_ENV
           echo "$DBT_PROJECTS" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
+        env:
+          WORKFLOW_NAME: ${{ github.event.repository.name }}
 
       - name: Get latest version tag of workflow from GitHub API
         id: get-version

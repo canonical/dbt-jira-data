@@ -63,17 +63,27 @@ runs:
 
         # Check for optional variables and assign defaults
         if not_in_list "GIT_URL" "${VAR_KEYS}"; then
+          echo "GIT_URL not set, assigning default value"
           ALL_VARS=$(jq ". += {\"GIT_URL\": \"${GIT_URL}\"}" <<< "$ALL_VARS")
+          VAR_KEYS=$(printf "%s\n%s\n" "$VAR_KEYS" "GIT_URL")
         fi
         if not_in_list "GIT_BRANCH" "${VAR_KEYS}"; then
+          echo "GIT_BRANCH not set, assigning default value"
           ALL_VARS=$(jq '. += {"GIT_BRANCH": "main"}' <<< "$ALL_VARS")
+          VAR_KEYS=$(printf "%s\n%s\n" "$VAR_KEYS" "GIT_BRANCH")
         fi
         if not_in_list "GIT_USER" "${VAR_KEYS}"; then
+          echo "GIT_USER not set, assigning default value"
           ALL_VARS=$(jq '. += {"GIT_USER": "canonical"}' <<< "$ALL_VARS")
+          VAR_KEYS=$(printf "%s\n%s\n" "$VAR_KEYS" "GIT_USER")
         fi
         if not_in_list "APP_DIR" "${VAR_KEYS}"; then
+          echo "APP_DIR not set, assigning default value"
           ALL_VARS=$(jq '. += {"APP_DIR": "/app"}' <<< "$ALL_VARS")
+          VAR_KEYS=$(printf "%s\n%s\n" "$VAR_KEYS" "APP_DIR")
         fi
+
+        echo $ALL_VARS
 
         mandatory_vars=(
           "DATAHUB_URL"
@@ -97,6 +107,7 @@ runs:
             # Connection method is always jwt for Trino
             if not_in_list "DBT_ENV_${upper_project}_TRINO_METHOD" "${VAR_KEYS}"; then
               ALL_VARS=$(jq ". += {\"DBT_ENV_${upper_project}_TRINO_METHOD\": \"jwt\"}" <<< "$ALL_VARS")
+              VAR_KEYS=$(printf "%s\n%s\n" "$VAR_KEYS" "DBT_ENV_${upper_project}_TRINO_METHOD")
               # we might also need to override a user-provided value
             fi
 
@@ -123,6 +134,10 @@ runs:
         # Save updated ALL_VARS to environment
         echo "ALL_VARS<<EOF" >> $GITHUB_ENV
         echo "$ALL_VARS" >> $GITHUB_ENV
+        echo "EOF" >> $GITHUB_ENV
+        # Save updated VAR_KEYS to environment
+        echo "VAR_KEYS<<EOF" >> $GITHUB_ENV
+        echo "$VAR_KEYS" >> $GITHUB_ENV
         echo "EOF" >> $GITHUB_ENV
       env:
         GIT_URL: ${{ github.server_url }}/${{ github.repository }}

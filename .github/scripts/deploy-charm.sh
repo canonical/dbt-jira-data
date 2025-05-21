@@ -37,4 +37,4 @@ fi
 # Application should either become active blocked if it is missing configuration.
 # During an initial deployment, it is expected that the application will be blocked
 # until the secrets/variables are configured.
-juju wait-for application $application_name --query='status == "active" || status == "blocked"' --timeout=2m
+juju wait-for application $application_name --query='status == "active" || status == "blocked"' --timeout=5m

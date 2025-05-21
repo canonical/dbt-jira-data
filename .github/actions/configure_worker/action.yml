@@ -48,22 +48,28 @@ runs:
           # These are required only if SENTRY_DSN is set
           SENTRY_ENVIRONMENT=$(jq -r ".SENTRY_ENVIRONMENT" <<< "$ALL_VARS")
           SENTRY_SAMPLE_RATE=$(jq -r ".SENTRY_SAMPLE_RATE" <<< "$ALL_VARS")
-          if [ $SENTRY_ENVIRONMENT == null ] || [ $SENTRY_SAMPLE_RATE == null ]; then
-            echo "SENTRY_ENVIRONMENT or SENTRY_SAMPLE_RATE is not set"
-            echo "Please double-check the environment variables."
-            exit 1
-          else
-            echo "SENTRY_DSN=${SENTRY_DSN}" >> $GITHUB_ENV
-            echo "SENTRY_ENVIRONMENT=${SENTRY_ENVIRONMENT}" >> $GITHUB_ENV
-            echo "SENTRY_SAMPLE_RATE=${SENTRY_SAMPLE_RATE}" >> $GITHUB_ENV
+          if [ $SENTRY_ENVIRONMENT == null ]; then
+            target=$(jq -r ".APP_TARGET" <<< "$ALL_VARS")
+            SENTRY_ENVIRONMENT="${target}-${WORKFLOW_NAME}"
           fi
+          if [ $SENTRY_SAMPLE_RATE == null ]; then
+            SENTRY_SAMPLE_RATE=1.0
+          fi
+          echo "SENTRY_DSN=${SENTRY_DSN}" >> $GITHUB_ENV
+          echo "SENTRY_ENVIRONMENT=${SENTRY_ENVIRONMENT}" >> $GITHUB_ENV
+          echo "SENTRY_SAMPLE_RATE=${SENTRY_SAMPLE_RATE}" >> $GITHUB_ENV
+          echo "SENTRY_RELEASE=${WORKFLOW_NAME}@${WORKFLOW_VERSION}" >> $GITHUB_ENV
         else
           echo 'SENTRY_DSN=""' >> $GITHUB_ENV
           echo 'SENTRY_ENVIRONMENT=""' >> $GITHUB_ENV
           echo 'SENTRY_SAMPLE_RATE=1.0' >> $GITHUB_ENV
+          echo 'SENTRY_RELEASE=""' >> $GITHUB_ENV
         fi
+
       env:
         ALL_VARS: ${{ inputs.all-vars }}
+        WORKFLOW_NAME: ${{ github.event.repository.name }}
+        WORKFLOW_VERSION: ${{ inputs.version }}
 
     - name: Configure Temporal worker
       id: configure-worker
@@ -93,7 +99,7 @@ runs:
           juju config ${worker_name} \
             sentry-dsn=${SENTRY_DSN} \
             sentry-environment=${SENTRY_ENVIRONMENT} \
-            sentry-release=${WORKFLOW_NAME}@${WORKFLOW_VERSION} \
+            sentry-release=${SENTRY_RELEASE} \
             sentry-sample-rate=${SENTRY_SAMPLE_RATE}
         fi
          
@@ -102,5 +108,4 @@ runs:
 
       env:
         WORKFLOW_NAME: ${{ github.event.repository.name }}
-        WORKFLOW_VERSION: ${{ inputs.version }}
         AUTH_SECRET_ID: ${{ inputs.auth-secret-id }}

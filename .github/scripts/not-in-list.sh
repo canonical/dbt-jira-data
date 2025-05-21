@@ -1,4 +1,4 @@
-#/bin/sh
+#!/bin/sh
 
 # Function to check if a secret is not in a list
 not_in_list() {
