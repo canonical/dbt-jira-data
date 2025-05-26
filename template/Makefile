@@ -33,10 +33,10 @@ docs:
 lint:
 	$(POETRY) run yamllint \
 		-c ../.github/config/yaml_rules.yaml .
-	$(POETRY) run dotenv -f ./.env run \
+	$(POETRY) run dotenv -f ../.env run \
 		sqlfluff lint models
 
 .PHONY: fmt
 fmt:
-	$(POETRY) run dotenv -f ./.env run \
+	$(POETRY) run dotenv -f ../.env run \
 		sqlfluff format models

@@ -1,11 +1,19 @@
 template:
     target: dev
     outputs:
-        dev:
-            type: "{{ env_var('DBT_ENV_TEMPLATE_CONN_TYPE') }}"
-            method: "{{ env_var('DBT_ENV_TEMPLATE_TRINO_METHOD') }}"
-            user: "{{ env_var('DBT_ENV_TEMPLATE_TRINO_USER') }}"
+        prod:
+            type: trino
+            method: jwt
+            jwt_token: ""
             host: "{{ env_var('DBT_ENV_TEMPLATE_TRINO_HOST') }}"
-            catalog: "{{ env_var('DBT_ENV_TEMPLATE_TRINO_CATALOG') }}"
+            catalog: template_developer
+            schema: dbt_prod
+            port: 443
+        dev:
+            type: trino
+            method: oauth
+            host: "{{ env_var('DBT_ENV_TEMPLATE_TRINO_HOST') }}"
+            catalog: template_developer
             schema: "{{ env_var('DBT_ENV_TEMPLATE_TRINO_SCHEMA') }}"
             port: 443
+

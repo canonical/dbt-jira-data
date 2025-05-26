@@ -6,7 +6,7 @@
 2. Choose catalogs to use as a target; generally speaking,
   this should be your team's workspace catalog.
 3. Gather the email addresses of the team members who will be developing models in this repository.
-4. Open a data access request with the Data Governance team requesting a Trino user with
+4. Open a data access request with the Data Lake team requesting a Trino service account with
   the appropriate permissions. Attach the list of data catalogs and the list of team members.
 
 ## Fork this repository
@@ -36,6 +36,8 @@ For each target data catalog, there should be one directory in the root of the r
 named after that catalog (minus the `_developer` suffix).
 For example, if your models are written to `marketing_developer`, the directory must be
 called `marketing`.
+Wherever you encounter `template` or `TEMPLATE`, replace it with the name of the
+data catalog being used (e.g. `marketing` or `MARKETING`, accordingly).
 
 Within each directory, a few files are required:
 * `dbt_project.yml` modified with the appropriate value for `profile`.
@@ -45,67 +47,39 @@ Within each directory, a few files are required:
 
 The `template` directory contains a sample dbt project illustrating some of the available
 features.
-It is recommended to read the link below, which explains the project structure recommended
-by dbt, which may be used as a starting point.
-
-### References
-* [How we structure our dbt projects | dbt Developer Hub](https://docs.getdbt.com/best-practices/how-we-structure/1-guide-overview) 
-
-## Authenticating with Trino
+It is recommended to read the [dbt project structure best practices](https://docs.getdbt.com/best-practices/how-we-structure/1-guide-overview),
+which explains the project structure recommended by dbt, which may be used as a starting point.
+You may **make a copy** of the `template` directory and rename it to the name of your
+data catalog. It is not recommended to modify the `template` directory directly.
 
 ### `profiles.yml`
 The `profiles.yml` file contains the authentication information for the data platform.
-Replace the instances of `<catalog>` below with the name of the data catalog being used.
+Replace the instances of `template` in the file with the name of the data catalog being used,
+using lowercase and uppercase letters accordingly.
 
-```yaml
-<catalog>:
-  target: dev
-  outputs:
-    dev:
-      type: trino
-      method: "{{ env_var('DBT_ENV_AUTH_METHOD') }}"
-      user: "{{ env_var('DBT_ENV_TRINO_USER') }}"
-      password: "{{ env_var('DBT_ENV_SECRET_TRINO_PASSWORD') }}"
-      host: "{{ env_var('DBT_ENV_TRINO_HOST') }}"
-      catalog: "{{ env_var('DBT_ENV_CATALOG') }}"
-      schema: "{{ env_var('DBT_ENV_SCHEMA') }}"
-      port: 443
-      ssl: true
-```
+This file contains one root key which should match the value of `profile` in `dbt_project.yml`.
+Within it, there are two targets under `outputs`: `dev` and `prod`.
+* `dev` is used for local development and testing.
+* `prod` is used for production deployments. The name of this target should match the value
+  of `APP_TARGET` in the environment variables.
 
 ### `dbt_project.yml`
-The same catalog name should also be used in `dbt_project.yml`.
-```yaml
-name: <catalog>
-...
-profile: <catalog>
-...
-models:
-  <catalog>:
-    staging:
-      +materialized: table
-    intermediate:
-      +materialized: ephemeral
-    marts:
-      +materialized: table
-```
+The same catalog name should also be used in `dbt_project.yml` where needed.
 
 ### `.env`
-Keep a single `.env` file in the directory, containing the values of
+Keep a single `.env` file in the **root of the repository**, containing the values of
 environment variables used in the profiles file.
 The authentication method should always be set to `oauth`, and the user and password
 values can be ignored.
 When running a dbt command, a browser window will open to perform authentication using
 Google OAuth.
 ```
-DBT_ENV_***_CONN_TYPE=trino
-DBT_ENV_***_TRINO_METHOD=oauth
 DBT_ENV_***_TRINO_HOST=<hostname> # e.g. trino.ps6.canonical.com
-DBT_ENV_***_TRINO_CATALOG=<catalog>_developer # e.g. marketing_developer
 DBT_ENV_***_TRINO_SCHEMA=<schema> # e.g. dbt_dev
 ```
 
 ### References
+* [How we structure our dbt projects | dbt Developer Hub](https://docs.getdbt.com/best-practices/how-we-structure/1-guide-overview) 
 * [Starburst/Trino setup | dbt Developer Hub](https://docs.getdbt.com/docs/core/connect-data-platform/trino-setup)
 * [Environment variables | dbt Developer Hub](https://docs.getdbt.com/docs/build/environment-variables)
 
@@ -124,6 +98,11 @@ Available commands:
 * `make clean`: clean targets and artifacts
 * `make lint`: lint YAML and SQL files
 * `make fmt`: format SQL files
+
+To run other dbt commands, or use command line parameters, use:
+```sh
+poetry run dotenv -f ../.env run dbt [command] [options]
+```
 
 ### References
 * [Run your dbt projects | dbt Developer Hub](https://docs.getdbt.com/docs/running-a-dbt-project/run-your-dbt-projects)
@@ -146,12 +125,13 @@ schedules:
 
 * The `name` key is used to identify the schedule. It should be unique.
 * The `models` key is used to specify a list of models to be built. 
-  Check the [Useful dbt features](https://github.com/canonical/dbt-template#useful-dbt-features)
-section below for more details.
+  Check the [Useful dbt features](#useful-dbt-features) section below for more details.
 * The `interval` key is used to specify the schedule in [cron format](https://cron.help/).
-  Minute-level granularity is not supported, so the first field should be `0`.
+  Minute-level granularity is not supported so, if the first field is `*`, the schedule
+  will run at a fixed arbitrary minute of the hour.
 * The `target` key is used to specify the target environment. 
-  If `prod` is not specified, the schedule will be ignored by the deployed worker.
+  One of the values in the `target` list must match the `APP_TARGET` environment variable
+  for it to be picked up by the deployed worker.
 
 ## Deploying the automated worker
 
@@ -161,47 +141,60 @@ The automated worker can be deployed using a GitHub Action.
 Before deploying, you must configure the repository secrets and environment variables.
 1. On the GitHub web UI, navigate to the Settings tab and then the Environments section.
 2. For production deployments, we suggest creating an environment named `prod`.
-3. Add secrets and variables as described below. All values are required unless otherwise noted.
+3. Add secrets and variables as described below.
 
 #### GitHub secrets
 
-* `VAULT_APPROLE_ROLE_ID`: Vault role ID.
-* `VAULT_APPROLE_SECRET_ID`: Vault secret ID.
-* `TEMPORAL_AUTH_PROVIDER`: Temporal authentication provider. Optional, defaults to `google`.
-* `TEMPORAL_ENCRYPTION_KEY`: Temporal encryption key.
-* `TEMPORAL_OIDC`: Temporal service account in JSON format.
-* `GIT_TOKEN`: A GitHub fine-grained personal access token with read access to the repository.
-[Documentation on GitHub tokens.](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens)
-This token must have read access to the repository and must be owned by the `canonical` organization.
-This token needs to be refreshed yearly.
-* `DATAHUB_TOKEN`: A DataHub token, retrieved from the DataHub UI.
-[Documentation on DataHub tokens.](https://datahubproject.io/docs/authentication/personal-access-tokens/)
-* `TRINO_OIDC_***`: Trino service account in JSON format, for each dbt project in this repository.
-Request a service account with the proper permissions from the Data Governance team.
+| Secret name | Description | Required | Default |
+| ----------- | ----------- | -------- | ------- |
+| `VAULT_APPROLE_ROLE_ID` | Vault role ID. See [below](#retrieving-vault-credentials) for details. | Yes | |
+| `VAULT_APPROLE_SECRET_ID` | Vault secret ID. See [below](#retrieving-vault-credentials) for details. | Yes | |
+| `TEMPORAL_AUTH_PROVIDER` | Temporal authentication provider. `google` or `candid`. | No | `google` |
+| `TEMPORAL_ENCRYPTION_KEY` | Temporal encryption key, which enables encryption of logs in the Temporal server. [Documentation on how to decrypt logs.](https://github.com/canonical/cs-workflows/tree/main/utils/decryption_server) | No | Logs will not be encrypted. |
+| `TEMPORAL_OIDC` | Temporal service account in JSON format. | Yes | |
+| `GIT_TOKEN` | A GitHub fine-grained personal access token with read access to the repository. [Documentation on GitHub tokens.](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens) This token must have read access to the repository and must be owned by the `canonical` organization. This token needs to be refreshed yearly. | Yes | |
+| `DATAHUB_TOKEN` | A DataHub token, retrieved from the DataHub UI. [Documentation on DataHub tokens.](https://datahubproject.io/docs/authentication/personal-access-tokens/) | Yes | |
+| `TRINO_OIDC_***` | Trino service account in JSON format, for each dbt project in this repository. Request a service account with the proper permissions from the Data Lake team.  | Yes | |
 
 #### Environment variables
 
-* `JUJU_CONTROLLER`: The Juju controller containing the Juju model below.
-* `JUJU_MODEL`: The Juju model on which the worker will be deployed.
-* `VAULT_SECRET_PATH_ROLE`: Vault secret path pointing to the credentials of the Juju model.
-* `TEMPORAL_HOST`: Temporal host, generally `temporal-is.canonical.com`.
-* `TEMPORAL_QUEUE`: Temporal queue. Optional, defaults to `[repo-name]-dbt-queue`.
-* `TEMPORAL_NAMESPACE`: Temporal namespace. If necessary, request a Temporal namespace for your
-team from IS. Generally, it should be called `prod-[team-name]`.
-* `SENTRY_DSN`: Sentry DSN. Optional, if not set, Sentry will not be used.
-* `SENTRY_ENVIRONMENT`: Sentry environment name. Required only if `SENTRY_DSN` is set.
-* `SENTRY_SAMPLE_RATE`: Sentry sample rate. Optional, defaults to `1.0`.
-* `GIT_REPO`: URL of the git repository. Optional, defaults to the current repository.
-* `GIT_BRANCH`: Repository branch to check out. Optional, defaults to `main`.
-* `GIT_USER`: Git username. Optional, defaults to `canonical`.
-* `APP_TARGET`: Should match the `target` values set in `schedules.yml` and should generally match
-the GitHub environment name. For example, `prod` for production deployments.
-* `DBT_ENV_***_CONN_TYPE`: Connection type for dbt, currently only `trino` is supported.
-* `DBT_ENV_***_TRINO_HOST`: Trino hostname, generally `trino.ps6.canonical.com`.
-* `DBT_ENV_***_TRINO_CATALOG`: Trino catalog name. Must be a workspace catalog owned by
-your team.
-* `DBT_ENV_***_TRINO_SCHEMA`: Trino schema name within the catalog, e.g. `dbt_prod`.
-If necessary, request schema creation from the Data Governance team.
+| Environment variable | Description | Required | Default |
+| -------------------- | ----------- | -------- | ------- |
+| `JUJU_CONTROLLER` | The Juju controller containing the Juju model below. | Yes | |
+| `JUJU_MODEL` | The Juju model on which the worker will be deployed. | Yes | |
+| `VAULT_SECRET_PATH_ROLE` | Vault secret path pointing to the credentials of the Juju model. See [below](#retrieving-vault-credentials) for details. | Yes | |
+| `TEMPORAL_HOST` | Temporal host. Generally `temporal-is.canonical.com`. | Yes | |
+| `TEMPORAL_QUEUE` | Temporal queue. | No | `[repo-name]-dbt-queue` |
+| `TEMPORAL_NAMESPACE` | Temporal namespace. If necessary, request a Temporal namespace for your team from IS. Generally, it should be called `prod-[team-name]`. | Yes | |
+| `SENTRY_DSN` | Sentry DSN. If necessary, request a Sentry instance for your team from IS. | No | Sentry integration is disabled. |
+| `SENTRY_ENVIRONMENT` | Sentry environment name. | No | `[app-target]-[repo-name]` |
+| `SENTRY_SAMPLE_RATE` | Sentry sample rate. | No | `1.0` |
+| `GIT_REPO` | URL of the git repository. Optional, defaults to the current repository. | No | Current repository URL. |
+| `GIT_BRANCH` | Repository branch to check out. | No | `main` |
+| `GIT_USER` | Git username. | No | `canonical` |
+| `DATAHUB_URL` | DataHub GMS URL. Generally `gms.datahub.canonical.com`. | Yes | |
+| `APP_TARGET` | Should match the `target` values set in `schedules.yml` and should generally match the GitHub environment name. For example, `prod` for production deployments. | Yes | |
+| `DBT_ENV_***_TRINO_HOST` | Trino hostname. Generally `trino.ps6.canonical.com`. | Yes | |
+
+#### Retrieving Vault credentials
+
+If you have access to a Juju model in the bastion, you can retrieve the Vault credentials
+using the following commands:
+
+```sh
+printenv | grep VAULT_APPROLE_ROLE_ID=
+printenv | grep VAULT_APPROLE_SECRET_ID=
+printenv | grep VAULT_SECRET_PATH_ROLE=
+```
+
+**Please note that these values may grant anyone at Canonical access to your data.**
+Use them according to the [Secrets Management Policy](https://docs.google.com/document/d/1dh0T4VMXYAUiUqluwD7CBhhcxOZN8F6FdJHwdumGefs/edit?tab=t.0).
+Once stored in GitHub secrets, they cannot be retrieved from GitHub.
+
+#### Multiple dbt projects in the repository
+There might be multiple instances of the `TRINO_OIDC_***` secret and the `DBT_ENV_***_TRINO_HOST` environment variable,
+for each dbt project present in the repository.
+Replace `***` with the `PROJECT_NAME`, e.g. `TRINO_OIDC_MARKETING` and `DBT_ENV_MARKETING_TRINO_HOST`.
 
 #### References
 * [GitHub secrets context](https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/accessing-contextual-information-about-workflow-runs#secrets-context)
@@ -223,12 +216,12 @@ More details on what is possible when running dbt Core can be found in the
 [documentation](https://docs.getdbt.com/docs/running-a-dbt-project/run-your-dbt-projects).
 For our purposes, some features are particularly useful:
 
-* We can define which models to build using the --select [model] option. This can be used as follows:
-  * `--select [model]` builds only the selected model. This means that if model B depends on model A, the data that is fetched via model A will not be refreshed.
-  * `--select +[model]` builds the models and all its ancestors.
-  * `--select [model]+` builds the model and all its descendants.
-  * `--select +[model]+` builds the model, its ancestors and its descendants.
-  * `--select @[model]` builds the model, its ancestors, its descendants and all ancestors of the descendants.
+* We can use `+` and `@` to define which "families" of models to build. This can be used as follows:
+  * `[model]` builds only the selected model. This means that if model B depends on model A, the data that is fetched via model A will not be refreshed.
+  * `+[model]` builds the models and all its ancestors.
+  * `[model]+` builds the model and all its descendants.
+  * `+[model]+` builds the model, its ancestors and its descendants.
+  * `@[model]` builds the model, its ancestors, its descendants and all ancestors of the descendants.
 * We can specify multiple versions of a model in the schema files. This way, if a model is undergoing updates, we can build the new version in staging while the previous stable version continues to be used in production.
 * We can add data tests and unit tests to our models using dbt’s schema files. It is recommended that models with complex logic have associated unit tests with mock data.
 
