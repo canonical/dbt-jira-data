@@ -50,7 +50,7 @@ runs:
         source $HOME/.envrc
         secret_name="${WORKFLOW_NAME}-auth-secret"
         # Notice the quotes around $private_key, it is a multiline string
-        if juju list-secrets | grep -F -q ${secret_name}; then
+        if juju list-secrets --format=json | jq -r ".[].name" | grep -Fxq "${secret_name}"; then
           # Secret already exists
           juju update-secret ${secret_name} \
               temporal-encryption-key=$encryption_key \
