@@ -58,8 +58,8 @@ jobs:
             sort -u
           )
           if [ $WORKFLOW_NAME != "dbt-template" ]; then
-            # Remove template from list of projects if the current repository is not the template
-            DBT_PROJECTS=$(echo $DBT_PROJECTS | sed '/^template$/d')
+            # If this is not the template repository, we want to ignore the template directory
+            DBT_PROJECTS=$(echo "$DBT_PROJECTS" | grep -v '^template$')
           fi
           # use heredoc format to write multiline string to environment
           echo "DBT_PROJECTS<<EOF" >> $GITHUB_ENV
