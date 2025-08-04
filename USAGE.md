@@ -135,15 +135,11 @@ schedules:
 
 ## Deploying the automated worker
 
-The automated worker can be deployed using a GitHub Action.
+The automated worker can be deployed by Commercial Systems upon request.
+Please contact the Commercial Systems team and share the following information
+in a Bitwarden vault:
 
-### Setting up environment secrets and variables
-Before deploying, you must configure the repository secrets and environment variables.
-1. On the GitHub web UI, navigate to the Settings tab and then the Environments section.
-2. For production deployments, we suggest creating an environment named `prod`.
-3. Add secrets and variables as described below.
-
-#### GitHub secrets
+#### secrets
 
 | Secret name | Description | Required | Default |
 | ----------- | ----------- | -------- | ------- |
@@ -151,10 +147,9 @@ Before deploying, you must configure the repository secrets and environment vari
 | `VAULT_APPROLE_SECRET_ID` | Vault secret ID. See [below](#retrieving-vault-credentials) for details. | Yes | |
 | `TEMPORAL_AUTH_PROVIDER` | Temporal authentication provider. `google` or `candid`. | No | `google` |
 | `TEMPORAL_ENCRYPTION_KEY` | Temporal encryption key, which enables encryption of logs in the Temporal server. [Documentation on how to decrypt logs.](https://github.com/canonical/cs-workflows/tree/main/utils/decryption_server) | No | Logs will not be encrypted. |
-| `TEMPORAL_OIDC` | Temporal service account in JSON format. | Yes | |
-| `GIT_TOKEN` | A GitHub fine-grained personal access token with read access to the repository. [Documentation on GitHub tokens.](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens) This token must have read access to the repository and must be owned by the `canonical` organization. This token needs to be refreshed yearly. | Yes | |
-| `DATAHUB_TOKEN` | A DataHub token, retrieved from the DataHub UI. [Documentation on DataHub tokens.](https://datahubproject.io/docs/authentication/personal-access-tokens/) | Yes | |
-| `TRINO_OIDC_***` | Trino service account in JSON format, for each dbt project in this repository. Request a service account with the proper permissions from the Data Lake team.  | Yes | |
+| `TEMPORAL_OIDC` | Temporal service account in JSON format. Requested from IS. | Yes | |
+| `GIT_TOKEN` | A GitHub fine-grained personal access token with read access to the repository. [Documentation on GitHub tokens.](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens) This token must have read access to the repository and must be owned by the `canonical` organization. This token needs to be refreshed yearly. | Not necessary if CS is allowed to read your repository. | |
+| `MM_TOKEN` | An API token for Mattermost. | No | Mattermost integration is skipped. |
 
 #### Environment variables
 
@@ -163,18 +158,19 @@ Before deploying, you must configure the repository secrets and environment vari
 | `JUJU_CONTROLLER` | The Juju controller containing the Juju model below. | Yes | |
 | `JUJU_MODEL` | The Juju model on which the worker will be deployed. | Yes | |
 | `VAULT_SECRET_PATH_ROLE` | Vault secret path pointing to the credentials of the Juju model. See [below](#retrieving-vault-credentials) for details. | Yes | |
-| `TEMPORAL_HOST` | Temporal host. Generally `temporal-is.canonical.com`. | Yes | |
-| `TEMPORAL_QUEUE` | Temporal queue. | No | `[repo-name]-dbt-queue` |
 | `TEMPORAL_NAMESPACE` | Temporal namespace. If necessary, request a Temporal namespace for your team from IS. Generally, it should be called `prod-[team-name]`. | Yes | |
 | `SENTRY_DSN` | Sentry DSN. If necessary, request a Sentry instance for your team from IS. | No | Sentry integration is disabled. |
 | `SENTRY_ENVIRONMENT` | Sentry environment name. | No | `[app-target]-[repo-name]` |
 | `SENTRY_SAMPLE_RATE` | Sentry sample rate. | No | `1.0` |
 | `GIT_REPO` | URL of the git repository. Optional, defaults to the current repository. | No | Current repository URL. |
 | `GIT_BRANCH` | Repository branch to check out. | No | `main` |
-| `GIT_USER` | Git username. | No | `canonical` |
-| `DATAHUB_URL` | DataHub GMS URL. Generally `gms.datahub.canonical.com`. | Yes | |
-| `APP_TARGET` | Should match the `target` values set in `schedules.yml` and should generally match the GitHub environment name. For example, `prod` for production deployments. | Yes | |
-| `DBT_ENV_***_TRINO_HOST` | Trino hostname. Generally `trino.ps6.canonical.com`. | Yes | |
+| `MM_URL` | Mattermost URL. | No | Mattermost integration is skipped. |
+| `MM_CHANNEL` | Mattermost channel ID to which post notifications. | No | Mattermost integration is skipped. |
+
+#### Required data accesses
+
+A list of the data catalogs from which the worker needs to read data,
+as well as your team's workspace database name, in which data is written.
 
 #### Retrieving Vault credentials
 
@@ -187,27 +183,15 @@ printenv | grep VAULT_APPROLE_SECRET_ID=
 printenv | grep VAULT_SECRET_PATH_ROLE=
 ```
 
+Otherwise, you may request to deploy the worker on a CS-managed Juju model.
+
 **Please note that these values may grant anyone at Canonical access to your data.**
 Use them according to the [Secrets Management Policy](https://docs.google.com/document/d/1dh0T4VMXYAUiUqluwD7CBhhcxOZN8F6FdJHwdumGefs/edit?tab=t.0).
 Once stored in GitHub secrets, they cannot be retrieved from GitHub.
 
-#### Multiple dbt projects in the repository
-There might be multiple instances of the `TRINO_OIDC_***` secret and the `DBT_ENV_***_TRINO_HOST` environment variable,
-for each dbt project present in the repository.
-Replace `***` with the `PROJECT_NAME`, e.g. `TRINO_OIDC_MARKETING` and `DBT_ENV_MARKETING_TRINO_HOST`.
-
 #### References
 * [GitHub secrets context](https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/accessing-contextual-information-about-workflow-runs#secrets-context)
 * [GitHub variables context](https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/accessing-contextual-information-about-workflow-runs#vars-context)
-
-### Running the deployment workflow
-1. On the GitHub web UI, navigate to the repository and select the `Actions` tab,
-where you can find the `Deploy dbt worker` workflow.
-2. Click on the `Run workflow` button and select the `prod` environment.
-3. After a few minutes, the workflow should be deployed on the selected Juju model.
-4. Navigate to the Temporal server, check the Schedules section, and look for the
-`dbt-workflow-scheduler` schedule ID.
-
 
 ## Further reading
 
