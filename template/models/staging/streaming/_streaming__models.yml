@@ -7,6 +7,9 @@ models:
     columns:
       - name: id
         description: The IMDb ID for the movie or TV show.
+        tests:
+          - unique
+          - not_null
       - name: source
         description: "netflix"
       - name: title

@@ -16,4 +16,11 @@ template:
             catalog: template_developer
             schema: "{{ env_var('DBT_ENV_TEMPLATE_TRINO_SCHEMA') }}"
             port: 443
-
+        test:
+            type: trino
+            method: none
+            user: dbt
+            host: "{{ env_var('DBT_ENV_TEMPLATE_TRINO_HOST') }}"
+            catalog: "{{ env_var('DBT_ENV_TEMPLATE_TRINO_CATALOG') }}"
+            schema: "{{ env_var('DBT_ENV_TEMPLATE_TRINO_SCHEMA') }}"
+            port: 443

@@ -12,7 +12,7 @@ movies as (
 netflix_crossed_countries as (
     select
         m.title,
-        m.imdbid,
+        m.id,
         m.available_countries,
         c.country_code
     from movies as m

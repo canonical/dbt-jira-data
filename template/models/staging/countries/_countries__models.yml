@@ -3,6 +3,10 @@ version: 2
 models:
   - name: stg_countries__countries
     description: Country codes and names, extracted from seed.
+    config:
+      materialized: ephemeral
+      contract:
+        enforced: true
     columns:
       - name: country_code
         description: Country's ISO 3166-1 alpha-2 code
@@ -19,8 +23,8 @@ unit_tests:
     given:
       - input: ref('country_codes')
         rows:
-          - {alpha-2: 'US', name: 'United States'}
-          - {alpha-2: 'BR', name: 'Brazil'}
+          - {alpha_2: 'US', name: 'United States'}
+          - {alpha_2: 'BR', name: 'Brazil'}
     expect:
       rows:
         - {country_code: 'US', name: 'United States'}

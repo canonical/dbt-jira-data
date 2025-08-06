@@ -48,7 +48,3 @@ seeds:
   template:
     +enabled: true
     +schema: seed_data
-    country_codes:
-      +column_types:
-        name: string
-        alpha-2: string

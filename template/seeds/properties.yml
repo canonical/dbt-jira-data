@@ -7,4 +7,19 @@ seeds:
       show: true
     columns:
       - name: name
-      - name: alpha-2
+        data_type: varchar(100)
+      - name: alpha_2
+        data_type: char(2)
+  - name: netflix
+    description: "A list of Netflix titles."
+    docs:
+      show: true
+    columns:
+      - name: imdbid
+        data_type: varchar(10)
+      - name: title
+        data_type: varchar(100)
+      - name: avaliablecountries
+        data_type: varchar(1000)
+      - name: type
+        data_type: varchar(100)

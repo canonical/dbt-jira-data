@@ -7,11 +7,11 @@ source as (
 staged as (
     select
         imdbid as id,
-        "netflix" as source,
+        'netflix' as source,
         title,
         availablecountries as available_countries,
         type
     from source
-),
+)
 
 select * from staged

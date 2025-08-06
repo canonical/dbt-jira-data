@@ -4,11 +4,11 @@ with countries as (
 
 netflix_movies as (
     select
-        country,
+        country_code,
         count(*) as num_movies
     from
         {{ ref('int_netflix_crossed_countries') }}
-    group by country
+    group by country_code
 ),
 
 final as (
@@ -18,7 +18,7 @@ final as (
     from countries
     full outer join
         netflix_movies
-        on countries.country_code = netflix_movies.country
+        on countries.country_code = netflix_movies.country_code
 )
 
 select * from final

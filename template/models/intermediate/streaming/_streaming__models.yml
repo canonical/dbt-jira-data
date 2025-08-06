@@ -1,0 +1,15 @@
+models:
+  - name: int_netflix_crossed_countries
+    config:
+      materialized: ephemeral
+      contract:
+        enforced: true
+    columns:
+      - name: title
+        data_type: varchar
+      - name: id
+        data_type: varchar
+      - name: available_countries
+        data_type: varchar
+      - name: country_code
+        data_type: char(2)
