@@ -1,0 +1,27 @@
+jira_support_team:
+    target: dev
+    outputs:
+        prod:
+            type: postgres
+            host: localhost
+            user: postgres
+            password: "{{ env_var('DBT_ENV_POSTGRESQL_PASSWORD') }}"
+            port: 5432
+            dbname: jira
+            schema: dbt_prod
+        dev:
+            type: postgres
+            host: localhost
+            user: jira_user
+            password: "{{ env_var('DBT_ENV_POSTGRESQL_PASSWORD') }}"
+            port: 5432
+            dbname: jira_db
+            schema: dbt_dev
+        test:
+            type: trino
+            method: none
+            user: dbt
+            host: "{{ env_var('DBT_ENV_TEMPLATE_TRINO_HOST') }}"
+            catalog: "{{ env_var('DBT_ENV_TEMPLATE_TRINO_CATALOG') }}"
+            schema: "{{ env_var('DBT_ENV_TEMPLATE_TRINO_SCHEMA') }}"
+            port: 443

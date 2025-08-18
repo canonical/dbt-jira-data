@@ -1,0 +1,44 @@
+version: 2
+
+models:
+  - name: stg_jira__issues
+    description: >
+      This model contains information about issues in Jira
+    columns:
+      - name: issue_id
+        description: issue internal db id, not key
+        tests:
+          - unique
+          - not_null
+      - name: issue_key
+        description: issue key 
+        tests:
+          - unique
+          - not_null
+      - name: fields_json
+        description: information about fields values in the issue. Represent as a json
+      - name: created
+        description: created date of the issue
+        tests:
+          - unique
+          - not_null
+      - name: updated
+        description: updated date of the issue
+      - name: project_key
+        description: project key
+  - name: stg_jira__issue_status_histories
+    description: >
+      This model contains history of the fields values
+    columns:
+      - name: issue_id
+        description: issue internal db id, not key
+        tests:
+          - unique
+          - not_null
+      - name: issue_key
+        description: issue key 
+        tests:
+          - unique
+          - not_null
+      - name: changelog_json
+        description: information about the history of the issue. Represent as a json

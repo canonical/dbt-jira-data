@@ -15,6 +15,7 @@ sqlfluff = "^3.3.1"
 sqlfluff-templater-dbt = "^3.3.1"
 yamllint = "^1.35.1"
 trino = {extras = ["external-authentication-token-cache"], version = "^0.333.0"}
+dbt-postgres = "~1.9"
 
 
 [build-system]
