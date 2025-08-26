@@ -1,0 +1,22 @@
+schedules:
+  - name: dbt_trino_stg__countries__daily # User-defined name, not used by dbt
+    models: # Only builds the `countries` model
+      # If `countries` inherits from an unbuilt model, dbt will error.
+      - stg_countries__countries
+    interval: "0 * * * *" # Run hourly
+    target:
+      - dev # Will be built in dev, not in prod
+  - name: dbt_trino_prod__movies_per_country__weekly
+    models: # Builds `movies_per_country` and all its ancestors
+      - +movies_per_country
+    interval: "0 14 * * 6" # Run weekly on Sunday at 14:00 UTC
+    target:
+      - prod # Will be built in prod
+  - name: your_other_model__monthly
+    models: # Builds `parent_a`, `parent_b`, and `your_other_model`
+      - parent_a
+      - parent_b
+      - your_other_model
+    interval: "0 0 1 * *" # Run on the 1st of every month at 00:00 UTC
+    target:
+      - dev # Will not be built in prod

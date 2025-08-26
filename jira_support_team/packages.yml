@@ -1,0 +1,5 @@
+# You can install dbt packages here.
+#
+# packages:
+# - package: dbt-labs/dbt_project_evaluator
+#   version: 1.0.0

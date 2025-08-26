@@ -1,0 +1,23 @@
+[sqlfluff]
+dialect = postgres
+templater = dbt
+max_line_length = 100
+ignore = templating
+
+[sqlfluff:templater:jinja]
+apply_dbt_builtins = True
+load_macros_from_path = ./macros
+
+[sqlfluff:templater:dbt]
+project_dir = .
+profiles_dir = .
+profile = jira_support_team
+target = dev
+
+[sqlfluff:rules]
+allow_scalar = True
+single_table_references = consistent
+
+[sqlfluff:indentation]
+tab_space_size = 4
+indent_unit = space
