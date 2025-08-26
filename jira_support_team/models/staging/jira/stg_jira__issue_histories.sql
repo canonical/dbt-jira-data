@@ -6,7 +6,7 @@ source as (
 
 staged as (
     select
-        id as issue_id,
+        id::bigint as issue_id,
         key as issue_key,
         changelog as changelog_json
     from source

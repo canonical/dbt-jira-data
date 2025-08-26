@@ -1,0 +1,117 @@
+version: 2
+
+models:
+  - name: int_jira__issues
+    description: "Intermediate, conformed Jira issues with flattened fields and the derived first_committed_sprint_id."
+    columns:
+      - name: issue_id
+        description: jira internal issue ID
+        tests: [not_null, unique]
+      - name: issue_key
+        description: jira issue key
+        tests: [not_null, unique]
+      - name: project_key
+        description: project key the issue belongs to
+        tests: [not_null]
+      - name: issue_type
+        description: "Issue type name."
+        tests: [not_null]
+      - name: summary
+        description: "Issue summary/title."
+        tests: [not_null]
+      - name: priority
+        description: "Priority name."
+      - name: reporter
+        description: "Reporter (display name)."
+      - name: assignee
+        description: "Assignee (display name)."
+      - name: status
+        description: "Current status."
+        tests: [not_null]
+      - name: created_at
+        description: "Issue created timestamp."
+        tests: [not_null]
+      - name: resolved_at
+        description: "Resolution timestamp, if resolved."
+      - name: story_points
+        description: "Story points (customfield_10024)."
+      - name: project
+        description: "Project name."
+      - name: created_raw
+        description: "Raw created timestamp"
+      - name: updated_raw
+        description: "Raw updated timestamp"
+      - name: first_committed_sprint_id
+        description: "Earliest sprint the issue was added to, derived from changelog."
+        tests:
+          - relationships:
+              to: ref('stg_jira__sprints')
+              field: sprint_id
+              severity: warn
+
+  - name: int_jira__issue_status_histories
+    description: "One row per issue status change derived from changelog."
+    columns:
+      - name: issue_id
+        description: "Jira internal issue ID."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('int_jira__issues')
+              field: issue_id
+      - name: issue_key
+        description: "Jira issue key."
+        tests: [not_null]
+      - name: changed_at
+        description: "Timestamp when the status change occurred."
+        tests: [not_null]
+      - name: from_status
+        description: "Previous status value."
+      - name: to_status
+        description: "New status value."
+
+  - name: int_jira__issue_sprint_histories
+    description: "Changelog entries for the Sprint field."
+    columns:
+      - name: issue_id
+        description: "Jira internal issue ID."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('int_jira__issues')
+              field: issue_id
+      - name: issue_key
+        description: "Jira issue key."
+        tests: [not_null]
+      - name: changed_at
+        description: "Timestamp when the sprint field changed."
+        tests: [not_null]
+      - name: from_string
+        description: "Sprint name from."
+      - name: to_string
+        description: "Sprint name to"
+      - name: from_id
+        description: "Sprint id from"
+      - name: to_id
+        description: "Sprint id to"
+
+  - name: int_jira__sprint_issues
+    description: "Staging link table between Jira issues and sprints. `added_at` is the earliest timestamp the issue was added to the sprint, derived from changelog."
+    columns:
+      - name: issue_id
+        description: "Jira issue ID."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('int_jira__issues')
+              field: issue_id
+              severity: warn 
+      - name: sprint_id
+        description: "Jira sprint ID (source: jira.sprint_issues.sprintId)."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_jira__sprints')
+              field: sprint_id
+      - name: added_at
+        description: "First time the issue was added to this sprint (timestamptz). Null if not found in changelog."

@@ -6,3 +6,5 @@ sources:
     schema: raw_jira
     tables:
       - name: issues
+      - name: sprints
+      - name: sprint_issues

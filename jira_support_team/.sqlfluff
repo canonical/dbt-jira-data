@@ -1,5 +1,5 @@
 [sqlfluff]
-dialect = trino
+dialect = postgres
 templater = dbt
 max_line_length = 100
 ignore = templating
@@ -11,7 +11,7 @@ load_macros_from_path = ./macros
 [sqlfluff:templater:dbt]
 project_dir = .
 profiles_dir = .
-profile = template
+profile = jira_support_team
 target = dev
 
 [sqlfluff:rules]

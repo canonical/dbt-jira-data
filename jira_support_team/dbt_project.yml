@@ -44,7 +44,7 @@ models:
       +materialized: table
 
 # Seeds are used to populate models with static data from e.g. CSV files.
-seeds:
-  jira_support_team:
-    +enabled: true
-    +schema: seed_data
+# seeds:
+#   jira_support_team:
+#     +enabled: true
+#     +schema: seed_data

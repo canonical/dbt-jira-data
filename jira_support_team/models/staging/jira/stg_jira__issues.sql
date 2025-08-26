@@ -6,7 +6,7 @@ source as (
 
 staged as (
     select
-        id as issue_id,
+        id::bigint as issue_id,
         key as issue_key,
         fields as fields_json,
         created as created,

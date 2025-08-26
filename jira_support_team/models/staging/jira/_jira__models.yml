@@ -20,13 +20,15 @@ models:
       - name: created
         description: created date of the issue
         tests:
-          - unique
           - not_null
       - name: updated
         description: updated date of the issue
       - name: project_key
         description: project key
-  - name: stg_jira__issue_status_histories
+        tests:
+          - not_null
+        
+  - name: stg_jira__issue_histories
     description: >
       This model contains history of the fields values
     columns:
@@ -35,6 +37,9 @@ models:
         tests:
           - unique
           - not_null
+          - relationships:
+              to: ref('stg_jira__issues')
+              field: issue_id
       - name: issue_key
         description: issue key 
         tests:
@@ -42,3 +47,43 @@ models:
           - not_null
       - name: changelog_json
         description: information about the history of the issue. Represent as a json
+
+  - name: stg_jira__sprints
+    description: "Jira sprints"
+    columns:
+      - name: sprint_id
+        description: jira sprint ID
+        tests:
+          - not_null
+          - unique
+      - name: name
+        description: sprint name
+      - name: state
+        description: sprint state in Jira
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["future", "active", "closed"]
+      - name: started_at
+        description: Sprint start datetime if set
+      - name: completed_at
+        description: Sprint completion datetime if set"
+
+  - name: stg_jira__sprint_issues
+    description: "Link table between Jira issues and sprints."
+    columns:
+      - name: issue_id
+        description: jira issue ID
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_jira__issues')
+              field: issue_id
+              severity: warn
+      - name: sprint_id
+        description: jira sprint ID
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_jira__sprints')
+              field: sprint_id
