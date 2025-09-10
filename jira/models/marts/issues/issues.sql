@@ -1,12 +1,3 @@
-{{ config(
-  indexes=[
-    {'columns': ['project_key']},
-    {'columns': ['status']},
-    {'columns': ['created_at']},
-    {'columns': ['first_committed_sprint_id']}
-  ]
-) }}
-
 select
     issue_id,
     issue_key,

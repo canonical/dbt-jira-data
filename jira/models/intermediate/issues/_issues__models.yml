@@ -115,3 +115,21 @@ models:
               field: sprint_id
       - name: added_at
         description: "First time the issue was added to this sprint (timestamptz). Null if not found in changelog."
+  - name: int_jira__sprints
+    description: "Intermediate normalized Jira sprints with canonical sprint names."
+    columns:
+      - name: sprint_id
+        description: "Jira sprint ID."
+        tests: [not_null, unique]
+      - name: original_name
+        description: "Original sprint name from Jira."
+        tests: [not_null]
+      - name: name
+        description: "Normalized sprint name in the format YYYY#NN. 'ERROR' if not matched."
+        tests: [not_null]
+      - name: state
+        description: "Sprint state (e.g., ACTIVE, CLOSED, FUTURE)."
+      - name: started_at
+        description: "Sprint start timestamp."
+      - name: completed_at
+        description: "Sprint completion timestamp."

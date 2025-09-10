@@ -1,9 +1,3 @@
-{{ config(
-  indexes=[
-    {'columns': ['issue_id', 'changed_at']}
-  ]
-) }}
-
 select
     issue_id,
     issue_key,
