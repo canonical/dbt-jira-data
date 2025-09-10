@@ -1,0 +1,11 @@
+schedules:
+  - name: dbt_jira_prod__models__daily
+    models: 
+      - issues
+      - sprints
+      - issue_status_histories
+      - issue_sprint_links
+      - issue_sprint_histories
+    interval: "0 0 * * *" # Every day at midnight.
+    target:
+      - dev

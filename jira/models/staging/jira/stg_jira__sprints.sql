@@ -6,7 +6,7 @@ source as (
 
 staged as (
     select
-        id::bigint as sprint_id,
+        CAST(id AS BIGINT) as sprint_id,
         name as name,
         state as state,
         "startDate" as started_at,

@@ -6,12 +6,9 @@ source as (
 
 staged as (
     select
-        id::bigint as issue_id,
+        CAST(id AS BIGINT) as issue_id,
         key as issue_key,
-        fields as fields_json,
-        created as created,
-        updated as updated,
-        "projectKey" as project_key
+        changelog as changelog_json
     from source
 )
 

@@ -1,11 +1,11 @@
 # Name your project! Generally speaking, it should be the same name
 # as the data catalog you're writing to.
-name: 'jira_support_team'
+name: 'jira'
 version: '1.0.0'
 config-version: 2
 
 # This value *must* match the directory name.
-profile: 'jira_support_team'
+profile: 'jira'
 
 # These configurations specify where dbt should look for different types of files.
 # The `model-paths` config, for example, states that models in this project can be
@@ -35,7 +35,7 @@ flags:
 # Intermediary models, which serve as layers between the raw data
 # and the final model, are ephemeral.
 models:
-  jira_support_team:
+  jira:
     staging:
       +materialized: table
     intermediate:
@@ -45,6 +45,6 @@ models:
 
 # Seeds are used to populate models with static data from e.g. CSV files.
 # seeds:
-#   jira_support_team:
+#   jira:
 #     +enabled: true
 #     +schema: seed_data

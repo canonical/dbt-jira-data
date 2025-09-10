@@ -6,8 +6,8 @@ source as (
 
 staged as (
     select
-        "issueId"::bigint as issue_id,
-        "sprintId"::bigint as sprint_id
+        CAST("issueId" AS BIGINT)  as issue_id,
+        CAST("sprintId" AS BIGINT) as sprint_id
     from source
 )
 

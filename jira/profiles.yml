@@ -1,0 +1,18 @@
+jira:
+    target: dev
+    outputs:
+        prod:
+            type: trino
+            method: jwt
+            jwt_token: "{{ env_var('DBT_ENV_SECRET_TRINO_TOKEN') }}"
+            host: "{{ env_var('DBT_ENV_JIRA_TRINO_HOST') }}"
+            catalog: jira_developer
+            schema: dbt_prod
+            port: 443
+        dev:
+            type: trino
+            method: oauth
+            host: "{{ env_var('DBT_ENV_JIRA_TRINO_HOST') }}"
+            catalog: jira
+            schema: "{{ env_var('DBT_ENV_JIRA_TRINO_SCHEMA') }}"
+            port: 443
