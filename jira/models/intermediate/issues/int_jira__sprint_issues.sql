@@ -6,15 +6,19 @@ hist as (
   select * from {{ ref('int_jira__issue_sprint_histories') }}
 ),
 
-/* Expand sprint IDs from the "to_id" field; drop those that already existed in "from_id" */
 added_events as (
   select
     h.issue_id,
-    cast(m as bigint)                                  as sprint_id,
-    cast(h.changed_at as timestamp with time zone)     as added_at
+    cast(m as bigint)                              as sprint_id,
+    cast(h.changed_at as timestamp with time zone) as added_at
   from hist h
-  cross join unnest(regexp_extract_all(coalesce(h.to_id, ''), '(\\d+)')) as t(m)
-  where not array_contains(regexp_extract_all(coalesce(h.from_id, ''), '(\\d+)'), m)
+  cross join unnest(
+    regexp_extract_all(coalesce(h.to_id, ''), '(\\d+)')
+  ) as t(m)
+  where not contains(
+    regexp_extract_all(coalesce(h.from_id, ''), '(\\d+)'),
+    m
+  )
 ),
 
 first_added as (

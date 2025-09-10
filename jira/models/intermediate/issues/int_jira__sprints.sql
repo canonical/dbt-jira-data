@@ -30,4 +30,4 @@ normalized as (
   from base
 )
 
-select * from normalized;
+select * from normalized

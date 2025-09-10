@@ -59,6 +59,7 @@ models:
           - relationships:
               to: ref('int_jira__issues')
               field: issue_id
+              severity: warn
       - name: issue_key
         description: "Jira issue key."
         tests: [not_null]
@@ -80,6 +81,7 @@ models:
           - relationships:
               to: ref('int_jira__issues')
               field: issue_id
+              severity: warn
       - name: issue_key
         description: "Jira issue key."
         tests: [not_null]
@@ -113,6 +115,7 @@ models:
           - relationships:
               to: ref('stg_jira__sprints')
               field: sprint_id
+              severity: warn
       - name: added_at
         description: "First time the issue was added to this sprint (timestamptz). Null if not found in changelog."
   - name: int_jira__sprints

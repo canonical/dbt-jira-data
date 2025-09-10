@@ -8,7 +8,6 @@ flattened as (
         issue_key,
         project_key,
 
-        /* JSON → scalar strings */
         json_extract_scalar(fields_json, '$.issuetype.name')          as issue_type,
         json_extract_scalar(fields_json, '$.summary')                  as summary,
         json_extract_scalar(fields_json, '$.priority.name')            as priority,
@@ -16,7 +15,6 @@ flattened as (
         json_extract_scalar(fields_json, '$.assignee.displayName')     as assignee,
         json_extract_scalar(fields_json, '$.status.name')              as status,
 
-        /* timestamps (ISO8601 strings → TIMESTAMP WITH TIME ZONE) */
         from_iso8601_timestamp(json_extract_scalar(fields_json, '$.created'))                    as created_at,
         case
             when nullif(json_extract_scalar(fields_json, '$.resolutiondate'), '') is not null
@@ -24,7 +22,6 @@ flattened as (
             else null
         end                                                                                      as resolved_at,
 
-        /* numeric (story points) — cast from string; adjust to DECIMAL(p,s) if you prefer */
         cast(nullif(json_extract_scalar(fields_json, '$.customfield_10024'), '') as double)      as story_points,
 
         json_extract_scalar(fields_json, '$.project.name')                as project,

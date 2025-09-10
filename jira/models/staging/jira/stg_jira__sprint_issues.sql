@@ -9,6 +9,7 @@ staged as (
         CAST("issueId" AS BIGINT)  as issue_id,
         CAST("sprintId" AS BIGINT) as sprint_id
     from source
+    where "sprintId" is not null
 )
 
 select * from staged

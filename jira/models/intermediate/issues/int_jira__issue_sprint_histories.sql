@@ -10,26 +10,28 @@ histories as (
   select * from {{ ref('stg_jira__issue_histories') }}
 ),
 
-/* Explode histories[].items[] */
 items as (
   select
     h.issue_id,
     h.issue_key,
-    from_iso8601_timestamp(json_extract_scalar(hist, '$.created')) as changed_at,
-    json_extract_scalar(itm, '$.field')                            as field,
-    json_extract_scalar(itm, '$.fromString')                       as from_string,
-    json_extract_scalar(itm, '$.toString')                         as to_string,
-    json_extract_scalar(itm, '$.from')                             as from_id,
-    json_extract_scalar(itm, '$.to')                               as to_id
+    from_iso8601_timestamp(json_extract_scalar(hh.hist, '$.created')) as changed_at,
+    json_extract_scalar(ii.itm, '$.field')                            as field,
+    json_extract_scalar(ii.itm, '$.fromString')                       as from_string,
+    json_extract_scalar(ii.itm, '$.toString')                         as to_string,
+    json_extract_scalar(ii.itm, '$.from')                             as from_id,
+    json_extract_scalar(ii.itm, '$.to')                               as to_id
   from histories h
-  cross join unnest(cast(json_extract(h.changelog_json, '$.histories') as array(json))) as hist
+  cross join unnest(
+    cast(json_extract(h.changelog_json, '$.histories') as array(json))
+  ) as hh(hist)         
   cross join unnest(
       coalesce(
-        cast(json_extract(hist, '$.items') as array(json)),
+        cast(json_extract(hh.hist, '$.items') as array(json)),
         cast(array[] as array(json))
       )
-  ) as itm
+  ) as ii(itm)          
 ),
+
 
 sprint_changes as (
   select
@@ -50,9 +52,8 @@ first_change as (
 ),
 
 initial_from_history as (
-  /* Add a synthetic initial row if earliest change indicates a prior sprint */
   select
-    ib.issue_id,
+    issue_id,                       
     ib.issue_key,
     ib.created_at                     as changed_at,
     cast(null as varchar)             as from_string,
@@ -63,6 +64,7 @@ initial_from_history as (
   join first_change fc using (issue_id)
   where coalesce(nullif(fc.from_id, ''), nullif(fc.from_string, '')) is not null
 )
+
 
 select * from initial_from_history
 union all

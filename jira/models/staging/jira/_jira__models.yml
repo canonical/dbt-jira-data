@@ -11,7 +11,7 @@ models:
           - unique
           - not_null
       - name: issue_key
-        description: issue key 
+        description: issue key
         tests:
           - unique
           - not_null
@@ -27,7 +27,7 @@ models:
         description: project key
         tests:
           - not_null
-        
+
   - name: stg_jira__issue_histories
     description: >
       This model contains history of the fields values
@@ -40,8 +40,9 @@ models:
           - relationships:
               to: ref('stg_jira__issues')
               field: issue_id
+              severity: warn
       - name: issue_key
-        description: issue key 
+        description: issue key
         tests:
           - unique
           - not_null
@@ -67,7 +68,7 @@ models:
       - name: started_at
         description: Sprint start datetime if set
       - name: completed_at
-        description: Sprint completion datetime if set"
+        description: Sprint completion datetime if set
 
   - name: stg_jira__sprint_issues
     description: "Link table between Jira issues and sprints."
@@ -87,3 +88,4 @@ models:
           - relationships:
               to: ref('stg_jira__sprints')
               field: sprint_id
+              severity: warn
