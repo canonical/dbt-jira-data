@@ -4,12 +4,16 @@ models:
   - name: issues
     description: "Issues with flattened fields and the first committed sprint."
 
+    config:
+      contract: {enforced: true}
+
     columns:
       - name: issue_id
         description: "Jira internal issue ID (primary key)."
         data_type: bigint
         constraints:
           - type: primary_key
+            warn_unsupported: false
           - type: not_null
           - type: unique
         tests: [not_null, unique]
@@ -19,6 +23,7 @@ models:
         data_type: varchar
         constraints:
           - type: unique
+            warn_unsupported: false
         tests: [not_null, unique]
 
       - name: issue_type
@@ -67,6 +72,7 @@ models:
           - type: foreign_key
             to: ref('sprints')
             to_columns: [sprint_id]
+            warn_unsupported: false
 
       - name: project_key
         data_type: varchar
@@ -80,6 +86,9 @@ models:
   - name: sprints
     description: "Sprints"
 
+    config:
+      contract: {enforced: true}
+
     columns:
       - name: sprint_id
         description: "Sprint ID (primary key)."
@@ -88,11 +97,17 @@ models:
           - type: not_null
           - type: unique
           - type: primary_key
+            warn_unsupported: false
         tests: [not_null, unique]
 
       - name: name
         data_type: varchar
         description: "Sprint name."
+        tests: [not_null]
+
+      - name: original_name
+        data_type: varchar
+        description: "Original sprint name"
         tests: [not_null]
 
       - name: state
@@ -101,6 +116,7 @@ models:
         constraints:
           - type: check
             expression: "state in ('future','active','closed')"
+            warn_unsupported: false
         tests:
           - not_null
           - accepted_values:
@@ -117,9 +133,13 @@ models:
   - name: issue_sprint_links
     description: "Issue to sprint links. One row per (issue_id, sprint_id)."
 
+    config:
+      contract: {enforced: true}
+
     constraints:
       - type: unique
         columns: [issue_id, sprint_id]
+        warn_unsupported: false
 
     columns:
       - name: issue_id
@@ -129,6 +149,7 @@ models:
           - type: foreign_key
             to: ref('issues')
             to_columns: [issue_id]
+            warn_unsupported: false
 
       - name: sprint_id
         data_type: bigint
@@ -137,6 +158,7 @@ models:
           - type: foreign_key
             to: ref('sprints')
             to_columns: [sprint_id]
+            warn_unsupported: false
 
       - name: added_at
         data_type: timestamp with time zone
@@ -144,6 +166,9 @@ models:
 
   - name: issue_status_histories
     description: "Status change events per issue."
+
+    config:
+      contract: {enforced: true}
 
     columns:
       - name: issue_id
@@ -153,6 +178,7 @@ models:
           - type: foreign_key
             to: ref('issues')
             to_columns: [issue_id]
+            warn_unsupported: false
 
       - name: issue_key
         data_type: varchar
@@ -175,6 +201,9 @@ models:
   - name: issue_sprint_histories
     description: "Sprint field change events per issue."
 
+    config:
+      contract: {enforced: true}
+
     columns:
       - name: issue_id
         data_type: bigint
@@ -183,6 +212,7 @@ models:
           - type: foreign_key
             to: ref('issues')
             to_columns: [issue_id]
+            warn_unsupported: false
 
       - name: issue_key
         data_type: varchar
