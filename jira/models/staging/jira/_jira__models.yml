@@ -4,6 +4,8 @@ models:
   - name: stg_jira__issues
     description: >
       This model contains information about issues in Jira
+    tests:
+      - assert_not_empty
     columns:
       - name: issue_id
         description: issue internal db id, not key
@@ -31,6 +33,8 @@ models:
   - name: stg_jira__issue_histories
     description: >
       This model contains history of the fields values
+    tests:
+      - assert_not_empty
     columns:
       - name: issue_id
         description: issue internal db id, not key
@@ -48,44 +52,3 @@ models:
           - not_null
       - name: changelog_json
         description: information about the history of the issue. Represent as a json
-
-  - name: stg_jira__sprints
-    description: "Jira sprints"
-    columns:
-      - name: sprint_id
-        description: jira sprint ID
-        tests:
-          - not_null
-          - unique
-      - name: name
-        description: sprint name
-      - name: state
-        description: sprint state in Jira
-        tests:
-          - not_null
-          - accepted_values:
-              values: ["future", "active", "closed"]
-      - name: started_at
-        description: Sprint start datetime if set
-      - name: completed_at
-        description: Sprint completion datetime if set
-
-  - name: stg_jira__sprint_issues
-    description: "Link table between Jira issues and sprints."
-    columns:
-      - name: issue_id
-        description: jira issue ID
-        tests:
-          - not_null
-          - relationships:
-              to: ref('stg_jira__issues')
-              field: issue_id
-              severity: warn
-      - name: sprint_id
-        description: jira sprint ID
-        tests:
-          - not_null
-          - relationships:
-              to: ref('stg_jira__sprints')
-              field: sprint_id
-              severity: warn

@@ -1,4 +1,4 @@
-select  
+select
     issue_id,
     sprint_id,
     added_at

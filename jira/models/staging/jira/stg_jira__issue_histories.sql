@@ -6,19 +6,18 @@ source as (
 
 staged as (
     select
-        CAST(id AS BIGINT) as issue_id,
         key as issue_key,
         changelog as changelog_json,
-        "projectKey" as project_key
+        "projectKey" as project_key,
+        CAST(id as BIGINT) as issue_id
     from source
 )
 
-select *
-from staged
+select * from staged
 where project_key = 'JUJU'
--- where project_key in (
---     'KE','SNAPDENG','KRNS','MIRENG','ROBENG',
---     'C3','ZAP','CHECKBOX','RTW','LM','CERTTF',
---     'IQA','SQT','IENG','AC','WD',
---     'TORENG','DPUENG','RTOS','JUJU','KU','MAASENG'
--- )
+/* where project_key in (
+    'KE', 'SNAPDENG', 'KRNS', 'MIRENG', 'ROBENG',
+    'C3', 'ZAP', 'CHECKBOX', 'RTW', 'LM', 'CERTTF',
+    'IQA', 'SQT', 'IENG', 'AC', 'WD',
+    'TORENG', 'DPUENG', 'RTOS', 'JUJU', 'KU', 'MAASENG'
+) */

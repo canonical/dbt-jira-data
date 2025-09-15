@@ -16,6 +16,7 @@ models:
             warn_unsupported: false
           - type: not_null
           - type: unique
+            warn_unsupported: false
         tests: [not_null, unique]
 
       - name: issue_key
@@ -96,6 +97,7 @@ models:
         constraints:
           - type: not_null
           - type: unique
+            warn_unsupported: false
           - type: primary_key
             warn_unsupported: false
         tests: [not_null, unique]

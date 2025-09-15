@@ -1,11 +1,22 @@
 schedules:
-  - name: dbt_jira_prod__models__daily
-    models: 
-      - issues
-      - sprints
-      - issue_status_histories
-      - issue_sprint_links
-      - issue_sprint_histories
-    interval: "0 0 * * *" # Every day at midnight.
+  - name: dbt_jira_dev__models__daily
+    models:
+      - +issues
+      - +sprints
+      - +issue_status_histories
+      - +issue_sprint_links
+      - +issue_sprint_histories
+    interval: "0 8 * * SUN" # Every week on sunday at 8 am.
     target:
       - dev
+
+  - name: dbt_jira_prod__models__daily
+    models:
+      - +issues
+      - +sprints
+      - +issue_status_histories
+      - +issue_sprint_links
+      - +issue_sprint_histories
+    interval: "0 23 * * *" # Every day at 11 pm.
+    target:
+      - prod

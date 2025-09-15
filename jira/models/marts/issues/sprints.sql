@@ -1,4 +1,4 @@
-select  
+select
     sprint_id,
     name,
     original_name,
