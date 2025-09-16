@@ -45,9 +45,8 @@ models:
         description: "Earliest sprint the issue was added to, derived from changelog."
         tests:
           - relationships:
-              to: ref('stg_jira__sprints')
+              to: ref('int_jira__sprints')
               field: sprint_id
-              severity: warn
 
   - name: int_jira__issue_status_histories
     description: "One row per issue status change derived from changelog."
@@ -59,6 +58,7 @@ models:
           - relationships:
               to: ref('int_jira__issues')
               field: issue_id
+              severity: warn
       - name: issue_key
         description: "Jira issue key."
         tests: [not_null]
@@ -69,6 +69,7 @@ models:
         description: "Previous status value."
       - name: to_status
         description: "New status value."
+        tests: [not_null]
 
   - name: int_jira__issue_sprint_histories
     description: "Changelog entries for the Sprint field."
@@ -80,6 +81,7 @@ models:
           - relationships:
               to: ref('int_jira__issues')
               field: issue_id
+              severity: warn
       - name: issue_key
         description: "Jira issue key."
         tests: [not_null]
@@ -96,7 +98,9 @@ models:
         description: "Sprint id to"
 
   - name: int_jira__sprint_issues
-    description: "Staging link table between Jira issues and sprints. `added_at` is the earliest timestamp the issue was added to the sprint, derived from changelog."
+    description:
+      "Staging link table between Jira issues and sprints.
+      `added_at` is the earliest timestamp the issue was added to the sprint, derived from changelog."
     columns:
       - name: issue_id
         description: "Jira issue ID."
@@ -105,16 +109,24 @@ models:
           - relationships:
               to: ref('int_jira__issues')
               field: issue_id
-              severity: warn 
       - name: sprint_id
         description: "Jira sprint ID (source: jira.sprint_issues.sprintId)."
         tests:
           - not_null
           - relationships:
-              to: ref('stg_jira__sprints')
+              to: ref('int_jira__sprints')
               field: sprint_id
       - name: added_at
         description: "First time the issue was added to this sprint (timestamptz). Null if not found in changelog."
+        tests:
+          - not_null:
+              config:
+                severity: warn
+    tests:
+      - unique:
+          column_name: "(issue_id, sprint_id)"
+
+
   - name: int_jira__sprints
     description: "Intermediate normalized Jira sprints with canonical sprint names."
     columns:
@@ -129,6 +141,10 @@ models:
         tests: [not_null]
       - name: state
         description: "Sprint state (e.g., ACTIVE, CLOSED, FUTURE)."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["future", "active", "closed"]
       - name: started_at
         description: "Sprint start timestamp."
       - name: completed_at

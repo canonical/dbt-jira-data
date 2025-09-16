@@ -2,87 +2,89 @@ version: 2
 
 models:
   - name: issues
-
     description: "Issues with flattened fields and the first committed sprint."
 
     config:
       contract: {enforced: true}
-    
+
     columns:
       - name: issue_id
         description: "Jira internal issue ID (primary key)."
         data_type: bigint
         constraints:
           - type: primary_key
+            warn_unsupported: false
           - type: not_null
           - type: unique
+            warn_unsupported: false
         tests: [not_null, unique]
 
       - name: issue_key
         description: "Jira issue key, e.g. PROJ-123 (unique)."
-        data_type: text
+        data_type: varchar
         constraints:
           - type: unique
+            warn_unsupported: false
         tests: [not_null, unique]
 
       - name: issue_type
-        data_type: text
+        data_type: varchar
         description: "Issue type name."
         tests: [not_null]
 
       - name: summary
-        data_type: text
+        data_type: varchar
         description: "Issue summary/title."
         tests: [not_null]
 
       - name: priority
-        data_type: text
+        data_type: varchar
         description: "Priority name."
 
       - name: reporter
-        data_type: text
+        data_type: varchar
         description: "Reporter (display name)."
 
       - name: assignee
-        data_type: text
+        data_type: varchar
         description: "Assignee (display name)."
 
       - name: status
-        data_type: text
+        data_type: varchar
         description: "Current status."
         tests: [not_null]
 
       - name: created_at
-        data_type: timestamptz
+        data_type: timestamp with time zone
         description: "Issue created timestamp."
         tests: [not_null]
 
       - name: resolved_at
-        data_type: timestamptz
+        data_type: timestamp with time zone
         description: "Resolution timestamp, if resolved."
 
       - name: story_points
-        data_type: numeric
+        data_type: double
         description: "Story points (customfield_10024)."
 
       - name: first_committed_sprint_id
         data_type: bigint
         constraints:
-         - type: foreign_key
-           to: ref('sprints')
-           to_columns: [sprint_id]
+          - type: foreign_key
+            to: ref('sprints')
+            to_columns: [sprint_id]
+            warn_unsupported: false
 
       - name: project_key
-        data_type: text
+        data_type: varchar
         description: "Project key."
         tests: [not_null]
 
       - name: project
-        data_type: text
+        data_type: varchar
         description: "Project name."
 
   - name: sprints
-
     description: "Sprints"
 
     config:
@@ -95,36 +97,42 @@ models:
         constraints:
           - type: not_null
           - type: unique
+            warn_unsupported: false
           - type: primary_key
+            warn_unsupported: false
         tests: [not_null, unique]
 
       - name: name
-        data_type: text
+        data_type: varchar
         description: "Sprint name."
         tests: [not_null]
 
+      - name: original_name
+        data_type: varchar
+        description: "Original sprint name"
+        tests: [not_null]
+
       - name: state
-        data_type: text
+        data_type: varchar
         description: "Sprint state."
         constraints:
           - type: check
             expression: "state in ('future','active','closed')"
+            warn_unsupported: false
         tests:
           - not_null
           - accepted_values:
               values: ["future", "active", "closed"]
 
       - name: started_at
-        data_type: timestamptz
+        data_type: timestamp with time zone
         description: "Sprint start datetime."
 
       - name: completed_at
-        data_type: timestamptz
+        data_type: timestamp with time zone
         description: "Sprint completion datetime."
 
-
   - name: issue_sprint_links
-
     description: "Issue to sprint links. One row per (issue_id, sprint_id)."
 
     config:
@@ -133,6 +141,7 @@ models:
     constraints:
       - type: unique
         columns: [issue_id, sprint_id]
+        warn_unsupported: false
 
     columns:
       - name: issue_id
@@ -142,6 +151,7 @@ models:
           - type: foreign_key
             to: ref('issues')
             to_columns: [issue_id]
+            warn_unsupported: false
 
       - name: sprint_id
         data_type: bigint
@@ -150,14 +160,13 @@ models:
           - type: foreign_key
             to: ref('sprints')
             to_columns: [sprint_id]
+            warn_unsupported: false
 
       - name: added_at
-        data_type: timestamptz
+        data_type: timestamp with time zone
         description: "First time the issue was added to the sprint (can be null if not derivable from history)."
 
-
   - name: issue_status_histories
-
     description: "Status change events per issue."
 
     config:
@@ -171,28 +180,27 @@ models:
           - type: foreign_key
             to: ref('issues')
             to_columns: [issue_id]
+            warn_unsupported: false
 
       - name: issue_key
-        data_type: text
+        data_type: varchar
         description: "Issue key."
         tests: [not_null]
 
       - name: changed_at
-        data_type: timestamptz
+        data_type: timestamp with time zone
         description: "Timestamp of the status change."
         tests: [not_null]
 
       - name: from_status
-        data_type: text
+        data_type: varchar
         description: "Previous status."
 
       - name: to_status
-        data_type: text
+        data_type: varchar
         description: "New status."
 
-
   - name: issue_sprint_histories
-
     description: "Sprint field change events per issue."
 
     config:
@@ -206,29 +214,30 @@ models:
           - type: foreign_key
             to: ref('issues')
             to_columns: [issue_id]
+            warn_unsupported: false
 
       - name: issue_key
-        data_type: text
+        data_type: varchar
         description: "Issue key."
         tests: [not_null]
 
       - name: changed_at
-        data_type: timestamptz
+        data_type: timestamp with time zone
         description: "Timestamp of the sprint field change."
         tests: [not_null]
 
       - name: from_string
-        data_type: text
+        data_type: varchar
         description: "FROM sprint value."
 
       - name: to_string
-        data_type: text
+        data_type: varchar
         description: "TO sprint value."
 
       - name: from_id
-        data_type: text
+        data_type: varchar
         description: "FROM sprint ID value."
 
       - name: to_id
-        data_type: text
+        data_type: varchar
         description: "TO sprint ID value."
