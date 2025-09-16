@@ -17,7 +17,8 @@ staged as (
 
 select *
 from staged
-where project_key = 'JUJU'
+where FROM_ISO8601_TIMESTAMP(created) >= timestamp '2023-01-01 00:00:00'
+-- where project_key = 'JUJU'
 /* where project_key in (
     'KE', 'SNAPDENG', 'KRNS', 'MIRENG', 'ROBENG',
     'C3', 'ZAP', 'CHECKBOX', 'RTW', 'LM', 'CERTTF',
