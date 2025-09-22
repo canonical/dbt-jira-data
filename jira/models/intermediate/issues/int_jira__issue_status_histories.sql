@@ -8,7 +8,7 @@ with issues_base as (
 ),
 
 histories as (
-    select * from {{ ref('stg_jira__issue_histories') }}
+    select * from {{ ref('stg_jira__issues') }}
 ),
 
 items as (

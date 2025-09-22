@@ -8,6 +8,7 @@ staged as (
     select
         key as issue_key,
         fields as fields_json,
+        changelog as changelog_json,
         created,
         updated,
         "projectKey" as project_key,
@@ -17,7 +18,6 @@ staged as (
 
 select *
 from staged
-where created >= timestamp '2023-01-01 00:00:00 UTC'
 /* where project_key in (
     'KE', 'SNAPDENG', 'KRNS', 'MIRENG', 'ROBENG',
     'C3', 'ZAP', 'CHECKBOX', 'RTW', 'LM', 'CERTTF',

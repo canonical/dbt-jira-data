@@ -29,26 +29,3 @@ models:
         description: project key
         tests:
           - not_null
-
-  - name: stg_jira__issue_histories
-    description: >
-      This model contains history of the fields values
-    tests:
-      - assert_not_empty
-    columns:
-      - name: issue_id
-        description: issue internal db id, not key
-        tests:
-          - unique
-          - not_null
-          - relationships:
-              to: ref('stg_jira__issues')
-              field: issue_id
-              severity: warn
-      - name: issue_key
-        description: issue key
-        tests:
-          - unique
-          - not_null
-      - name: changelog_json
-        description: information about the history of the issue. Represent as a json

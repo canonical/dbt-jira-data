@@ -11,7 +11,7 @@ histories as (
         issue_id,
         issue_key,
         changelog_json
-    from {{ ref('stg_jira__issue_histories') }}
+    from {{ ref('stg_jira__issues') }}
 ),
 
 items as (
