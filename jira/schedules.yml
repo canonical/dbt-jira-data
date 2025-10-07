@@ -1,5 +1,5 @@
 schedules:
-  - name: dbt_jira_dev__models__daily
+  - name: dbt_jira_dev__models
     models:
       - +issues
       - +sprints
@@ -10,7 +10,7 @@ schedules:
     target:
       - dev
 
-  - name: dbt_jira_prod__models__daily
+  - name: dbt_jira_prod__models
     models:
       - +issues
       - +sprints
