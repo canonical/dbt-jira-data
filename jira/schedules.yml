@@ -14,7 +14,6 @@ schedules:
     interval: "0 8 * * SUN" # Every week on sunday at 8 am.
     target:
       - dev
-
   - name: dbt_jira_prod__models
     models:
       - +issues
