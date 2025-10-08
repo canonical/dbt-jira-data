@@ -535,5 +535,5 @@ models:
 
       - name: hours_in_status
         description: "The total number of hours the issue spent in the status during the specified period."
-        data_type: double
+        data_type: decimal(10, 2)
         tests: [not_null]
