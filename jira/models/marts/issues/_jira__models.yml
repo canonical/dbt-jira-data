@@ -241,3 +241,299 @@ models:
       - name: to_id
         data_type: varchar
         description: "TO sprint ID value."
+
+  - name: efficiency
+    description: "A consolidated view of stories delivered
+      and bugs opened within each sprint, used to calculate efficiency metrics."
+
+    config:
+      contract: {enforced: true}
+
+    columns:
+      - name: sprint_id
+        description: "Sprint ID (foreign key)."
+        data_type: bigint
+        constraints:
+          - type: not_null
+          - type: foreign_key
+            to: ref('sprints')
+            to_columns: [sprint_id]
+            warn_unsupported: false
+        tests:
+          - not_null
+          - relationships:
+              to: ref('sprints')
+              field: sprint_id
+
+      - name: sprint_name
+        description: "Sprint name."
+        data_type: varchar
+        tests: [not_null]
+
+      - name: started_at
+        description: "Sprint start datetime."
+        data_type: timestamp with time zone
+
+      - name: issue_id
+        description: "Issue ID (foreign key)."
+        data_type: bigint
+        constraints:
+          - type: not_null
+          - type: foreign_key
+            to: ref('issues')
+            to_columns: [issue_id]
+            warn_unsupported: false
+        tests:
+          - not_null
+          - relationships:
+              to: ref('issues')
+              field: issue_id
+
+      - name: summary
+        description: "Issue summary/title."
+        data_type: varchar
+        tests: [not_null]
+
+      - name: project
+        description: "Project name."
+        data_type: varchar
+
+      - name: metric_type
+        description: "Type of metric ('delivered_story' or 'opened_bug')."
+        data_type: varchar
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["delivered_story", "opened_bug"]
+
+  - name: opened_vs_closed_bugs
+    description: "Tracks bugs that were either opened or closed within each sprint.
+     A bug may appear twice if it was both opened and closed in the same sprint."
+
+    config:
+      contract: {enforced: true}
+
+    columns:
+      - name: sprint_id
+        description: "The ID of the sprint in which the bug was opened or closed."
+        data_type: bigint
+        constraints:
+          - type: not_null
+          - type: foreign_key
+            to: ref('sprints')
+            to_columns: [sprint_id]
+            warn_unsupported: false
+        tests:
+          - not_null
+          - relationships:
+              to: ref('sprints')
+              field: sprint_id
+
+      - name: sprint_name
+        description: "The name of the sprint."
+        data_type: varchar
+        tests: [not_null]
+
+      - name: issue_url
+        description: "A clickable HTML link to the Jira issue."
+        data_type: varchar
+        tests: [not_null]
+
+      - name: summary
+        description: "Issue summary/title."
+        data_type: varchar
+        tests: [not_null]
+
+      - name: project
+        description: "Project name."
+        data_type: varchar
+
+      - name: created_at
+        description: "Timestamp when the bug was created."
+        data_type: timestamp with time zone
+        tests: [not_null]
+
+      - name: resolved_at
+        description: "Timestamp when the bug was resolved. Can be null."
+        data_type: timestamp with time zone
+
+      - name: priority
+        description: "Priority of the bug."
+        data_type: varchar
+
+      - name: status
+        description: "Indicates if the record represents an 'opened' or 'closed' event within the sprint."
+        data_type: varchar
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["opened", "closed"]
+
+  - name: project_correctness_and_performance
+    description: "Lists all bugs that were active during a sprint.
+     A bug is considered active if it was created before the sprint ended
+     and was either unresolved or resolved after the sprint started."
+
+    config:
+      contract: {enforced: true}
+
+    columns:
+      - name: sprint_name
+        description: "Name of the sprint."
+        data_type: varchar
+        tests: [not_null]
+
+      - name: issue_url
+        description: "A clickable HTML link to the Jira bug."
+        data_type: varchar
+        tests: [not_null]
+
+      - name: summary
+        description: "Issue summary/title."
+        data_type: varchar
+        tests: [not_null]
+
+      - name: priority
+        description: "Priority of the bug."
+        data_type: varchar
+
+      - name: project
+        description: "Project name."
+        data_type: varchar
+
+      - name: priority_group
+        description: "Categorizes priority into 'P1/2' (Highest/High) and 'P3' (others)."
+        data_type: varchar
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['P1/2', 'P3']
+
+      - name: created_at
+        description: "Timestamp when the bug was created."
+        data_type: timestamp with time zone
+        tests: [not_null]
+
+      - name: resolved_at
+        description: "Timestamp when the bug was resolved. Can be null."
+        data_type: timestamp with time zone
+
+  - name: project_velocity_and_predictability
+    description: "Tracks all issues (stories, tasks, bugs, spikes) that were committed to a sprint,
+     and separately, those that were delivered within that sprint's timeframe."
+
+    config:
+      contract: {enforced: true}
+
+    columns:
+      - name: sprint_id
+        description: "The ID of the sprint (foreign key)."
+        data_type: bigint
+        tests:
+          - not_null
+          - relationships:
+              to: ref('sprints')
+              field: sprint_id
+
+      - name: sprint_name
+        description: "The name of the sprint."
+        data_type: varchar
+        tests: [not_null]
+
+      - name: issue_url
+        description: "A clickable HTML link to the Jira issue."
+        data_type: varchar
+        tests: [not_null]
+
+      - name: issue_type
+        description: "The type of the issue (e.g., Story, Bug)."
+        data_type: varchar
+        tests: [not_null]
+
+      - name: summary
+        description: "Issue summary/title."
+        data_type: varchar
+        tests: [not_null]
+
+      - name: project
+        description: "Project name."
+        data_type: varchar
+
+      - name: status
+        description: "Indicates if the record represents a
+          'committed' or 'delivered' state for the issue in the sprint."
+        data_type: varchar
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["committed", "delivered"]
+
+  - name: time_in_status
+    description: "Calculates the time an issue spent in each status during a specific sprint.
+     An issue's status history is broken into periods that fall within a sprint's start and end dates."
+
+    config:
+      contract: {enforced: true}
+
+    columns:
+      - name: issue_url
+        description: "A clickable HTML link to the Jira issue."
+        data_type: varchar
+        tests: [not_null]
+
+      - name: sprint_id
+        description: "The ID of the sprint (foreign key)."
+        data_type: bigint
+        tests:
+          - not_null
+          - relationships:
+              to: ref('sprints')
+              field: sprint_id
+
+      - name: sprint_name
+        description: "The name of the sprint."
+        data_type: varchar
+        tests: [not_null]
+
+      - name: issue_id
+        description: "The ID of the issue (foreign key)."
+        data_type: bigint
+        tests:
+          - not_null
+          - relationships:
+              to: ref('issues')
+              field: issue_id
+
+      - name: summary
+        description: "Issue summary/title."
+        data_type: varchar
+        tests: [not_null]
+
+      - name: status
+        description: "The status the issue was in."
+        data_type: varchar
+        tests: [not_null]
+
+      - name: project
+        description: "Project name."
+        data_type: varchar
+
+      - name: period_start
+        description: "The start of the time window for this status, clipped to the sprint's start time."
+        data_type: timestamp with time zone
+        tests: [not_null]
+
+      - name: period_end
+        description: "The end of the time window for this status, clipped to the sprint's completion time."
+        data_type: timestamp with time zone
+        tests: [not_null]
+
+      - name: seconds_in_status
+        description: "The total number of seconds the issue spent in the status during the specified period."
+        data_type: bigint
+        tests: [not_null]
+
+      - name: hours_in_status
+        description: "The total number of hours the issue spent in the status during the specified period."
+        data_type: decimal(10, 2)
+        tests: [not_null]
