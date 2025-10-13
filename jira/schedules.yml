@@ -1,31 +1,20 @@
 schedules:
-  - name: dbt_jira_dev__models
+  - name: dbt_jira_prod__issues
     models:
       - +issues
       - sprints
       - issue_status_histories
       - issue_sprint_links
-      - issue_sprint_histories
-      - time_in_status
-      - project_velocity_and_predictability
-      - project_correctness_and_performance
-      - opened_vs_closed_bugs
-      - efficiency
-    interval: "0 8 * * SUN" # Every week on sunday at 8 am.
-    target:
-      - dev
-  - name: dbt_jira_prod__models
-    models:
-      - +issues
-      - sprints
-      - issue_status_histories
-      - issue_sprint_links
-      - issue_sprint_histories
-      - time_in_status
-      - project_velocity_and_predictability
-      - project_correctness_and_performance
-      - opened_vs_closed_bugs
-      - efficiency
     interval: "0 23 * * *" # Every day at 11 pm.
+    target:
+      - prod
+  - name: dbt_jira_prod__marts
+    models:
+      - time_in_status
+      - project_velocity_and_predictability
+      - project_correctness_and_performance
+      - opened_vs_closed_bugs
+      - efficiency
+    interval: "0 2 * * *" # Every day at 2 am.
     target:
       - prod
