@@ -2,12 +2,25 @@ schedules:
   - name: dbt_jira_prod__issues
     models:
       - +issues
+    interval: "0 20 * * *" # Every day at 8 pm.
+    target:
+      - prod
+
+  - name: dbt_jira_prod__sprints
+    models:
       - sprints
-      - issue_status_histories
       - issue_sprint_links
     interval: "0 23 * * *" # Every day at 11 pm.
     target:
       - prod
+
+  - name: dbt_jira_prod__status_histories
+    models:
+      - issue_status_histories
+    interval: "0 1 * * *" # Every day at 1 am.
+    target:
+      - prod
+
   - name: dbt_jira_prod__marts
     models:
       - time_in_status
@@ -15,6 +28,6 @@ schedules:
       - project_correctness_and_performance
       - opened_vs_closed_bugs
       - efficiency
-    interval: "0 2 * * *" # Every day at 2 am.
+    interval: "0 3 * * *" # Every day at 3 am.
     target:
       - prod
