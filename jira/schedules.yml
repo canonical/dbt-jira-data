@@ -1,7 +1,14 @@
 schedules:
+  - name: dbt_jira_prod__stg_issues
+    models:
+      - stg_jira__issues
+    interval: "0 17 * * *" # Every day at 5 pm.
+    target:
+      - prod
+
   - name: dbt_jira_prod__issues
     models:
-      - +issues
+      - issues
     interval: "0 20 * * *" # Every day at 8 pm.
     target:
       - prod
