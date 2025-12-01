@@ -1,5 +1,5 @@
 jira:
-    target: test
+    target: dev
     outputs:
         prod:
             type: trino
@@ -15,11 +15,4 @@ jira:
             host: "{{ env_var('DBT_ENV_JIRA_TRINO_HOST') }}"
             catalog: enterprise_eng_ws_developer
             schema: dbt_dev
-            port: 443
-        test:
-            type: trino
-            method: oauth
-            host: "{{ env_var('DBT_ENV_JIRA_TRINO_HOST') }}"
-            catalog: enterprise_eng_ws_developer
-            schema: dbt_prod
             port: 443
