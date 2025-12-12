@@ -48,6 +48,25 @@ models:
               to: ref('int_jira__sprints')
               field: sprint_id
 
+  - name: int_jira__issue_labels
+    description: "Normalized labels for Jira issues (one row per issue_id + label)."
+    columns:
+      - name: issue_id
+        description: "Jira internal issue ID."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('int_jira__issues')
+              field: issue_id
+              severity: warn
+      - name: label
+        description: "Single label assigned to the issue."
+        tests:
+          - not_null
+    tests:
+      - unique:
+          column_name: "(issue_id, label)"
+
   - name: int_jira__issue_status_histories
     description: "One row per issue status change derived from changelog."
     columns:

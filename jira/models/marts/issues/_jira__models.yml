@@ -84,6 +84,34 @@ models:
         data_type: varchar
         description: "Project name."
 
+  - name: issue_labels
+    description: "Normalized labels for Jira issues (one row per issue_id + label)."
+
+    config:
+      contract: {enforced: true}
+
+    constraints:
+      - type: unique
+        columns: [issue_id, label]
+        warn_unsupported: false
+
+    columns:
+      - name: issue_id
+        data_type: bigint
+        description: "Jira internal issue ID."
+        constraints:
+          - type: not_null
+          - type: foreign_key
+            to: ref('issues')
+            to_columns: [issue_id]
+            warn_unsupported: false
+
+      - name: label
+        data_type: varchar
+        description: "Single label assigned to the issue."
+        constraints:
+          - type: not_null
+
   - name: sprints
     description: "Sprints"
 

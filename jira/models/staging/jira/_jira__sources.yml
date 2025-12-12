@@ -5,5 +5,10 @@ sources:
     database: jira
     schema: canonical
     description: Jira data
+    loaded_at_field: createddate
+    freshness:
+      warn_after: { count: 12, period: hour }
     tables:
       - name: issues
+        freshness:
+          warn_after: { count: 1, period: day }
