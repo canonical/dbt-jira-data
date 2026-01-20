@@ -1,13 +1,13 @@
 schedules:
   - name: dbt_jira_prod__jira_nightly
     models:
-      - issue_labels
-      - issues
-      - time_in_status
-      - project_velocity_and_predictability
-      - project_correctness_and_performance
-      - opened_vs_closed_bugs
-      - efficiency
+      # - issue_labels
+      - +issues
+      # - time_in_status
+      # - project_velocity_and_predictability
+      # - project_correctness_and_performance
+      # - opened_vs_closed_bugs
+      # - efficiency
     interval: "0 4 * * *" # Every day at 4 am.
     target:
       - prod
