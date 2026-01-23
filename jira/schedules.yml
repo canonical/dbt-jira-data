@@ -1,7 +1,14 @@
 schedules:
   - name: dbt_jira_prod__jira_nightly
     models:
-      - issue_labels
+      - stg_jira__issues
+      - int_jira__issues
+      - int_jira__issue_status_histories
+      - int_jira__issue_priority_histories
+      - int_jira__issue_resolution_histories
+      - int_jira__issue_assignee_histories
+      - int_jira__issue_reporter_histories
+      - int_jira__issue_labels
       - issues
       # - time_in_status
       # - project_velocity_and_predictability
