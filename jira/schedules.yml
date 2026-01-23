@@ -1,8 +1,8 @@
 schedules:
   - name: dbt_jira_prod__jira_nightly
     models:
-      # - issue_labels
-      - +issues
+      - issue_labels
+      - issues
       # - time_in_status
       # - project_velocity_and_predictability
       # - project_correctness_and_performance
