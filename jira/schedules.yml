@@ -4,11 +4,13 @@ schedules:
       - stg_jira__issues
       - int_jira__issues
       - int_jira__issue_status_histories
+      - int_jira__issue_sprint_histories
       - int_jira__issue_priority_histories
       - int_jira__issue_resolution_histories
       - int_jira__issue_assignee_histories
       - int_jira__issue_reporter_histories
       - int_jira__issue_labels
+      - int_jira__sprint_issues
       - issues
       # - time_in_status
       # - project_velocity_and_predictability
