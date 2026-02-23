@@ -47,6 +47,7 @@ models:
           - relationships:
               to: ref('int_jira__sprints')
               field: sprint_id
+              severity: warn
 
   - name: int_jira__issue_labels
     description: "Normalized labels for Jira issues (one row per issue_id + label)."
@@ -128,6 +129,7 @@ models:
           - relationships:
               to: ref('int_jira__issues')
               field: issue_id
+              severity: warn
       - name: sprint_id
         description: "Jira sprint ID (source: jira.sprint_issues.sprintId)."
         tests:

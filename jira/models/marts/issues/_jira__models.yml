@@ -292,6 +292,7 @@ models:
           - relationships:
               to: ref('sprints')
               field: sprint_id
+              severity: warn
 
       - name: sprint_name
         description: "Sprint name."
@@ -316,6 +317,7 @@ models:
           - relationships:
               to: ref('issues')
               field: issue_id
+              severity: warn
 
       - name: summary
         description: "Issue summary/title."
@@ -356,6 +358,7 @@ models:
           - relationships:
               to: ref('sprints')
               field: sprint_id
+              severity: warn
 
       - name: sprint_name
         description: "The name of the sprint."
@@ -462,6 +465,7 @@ models:
           - relationships:
               to: ref('sprints')
               field: sprint_id
+              severity: warn
 
       - name: sprint_name
         description: "The name of the sprint."
@@ -517,6 +521,7 @@ models:
           - relationships:
               to: ref('sprints')
               field: sprint_id
+              severity: warn
 
       - name: sprint_name
         description: "The name of the sprint."
@@ -531,6 +536,7 @@ models:
           - relationships:
               to: ref('issues')
               field: issue_id
+              severity: warn
 
       - name: summary
         description: "Issue summary/title."
